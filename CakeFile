@@ -1,0 +1,59 @@
+### Build file for CoffeePhysics. ###
+fs 			  = require 'fs'
+uglify 		  = require 'uglify-js'
+{exec, spawn} = require 'child_process'
+
+config =
+	compiled: 'js'
+	deploy: 'deploy'
+	source: 'src'
+
+output =
+	'phallanxpress': [
+		'base'
+		'phallanxpress'
+		'models/base_model'
+		'models/tag_model'
+		'models/category_model'
+		'models/post_model'
+		'models/page_model'
+		'models/author_model'
+		'collections/base_collection'
+		'collections/categories_collection'
+		'collections/pages_collection'
+		'collections/posts_collection'
+		'collections/tags_collection'
+		'collections/authors_collection'
+	]
+
+
+task 'watch', 'Watch & compile changes in source dir', ->
+	
+	watch = exec "coffee -o #{config.compiled}/ -cwb #{config.source}/"
+	watch.stdout.on 'data', (data) ->
+		process.stdout.write data
+		
+
+task 'build', '', ->
+	
+	for target, files of output
+
+		mapped = files.map (file) ->
+			file = "#{config.source}/#{file}.js.coffee"
+
+		file = "#{config.deploy}/#{target}.js"
+
+		exec "coffee -j #{file} -cb #{(mapped.join ' ')}"
+		console.log "coffee -j #{file} -cb #{(mapped.join ' ')}"
+
+		fs.readFile file, 'utf8', (err, data) ->
+			throw new Error(err) if err?	
+
+			ast = uglify.parser.parse data
+			ast = uglify.uglify.ast_mangle ast
+			ast = uglify.uglify.ast_squeeze ast
+			code = uglify.uglify.gen_code ast
+		
+			fs.writeFile "#{config.deploy}/#{target}.min.js", code
+			
+			
