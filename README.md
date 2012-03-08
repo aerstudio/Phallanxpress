@@ -319,13 +319,6 @@ Implements the method `authorsList`.
 If you want to make your own model please extend from this object. Set the `apiCommand` and `parseTag` parameter.
 
 
-
-## To do whislist
-These are the next steps in development (in not specific order):
-
-* Make it work with creation controller of plugin.
-* Use a cache with localStorage through `Api` object.
-
 ## Changelog
 
 ### 0.1.1
