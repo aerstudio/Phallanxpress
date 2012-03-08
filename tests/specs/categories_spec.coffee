@@ -10,7 +10,7 @@ describe "Phallanxpress categories collection", ->
   describe 'Categories list', ->
     categories = request = null
     beforeEach ->
-      categories = api.categoryList( taxonomy: 'cat')
+      categories = api.categoryList( taxonomy: 'cat', forceRequest: true)
       request = mostRecentAjaxRequest()
       request.response TestResponses.category_list.success
 

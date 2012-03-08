@@ -10,7 +10,7 @@ describe "Phallanxpress Post Model", ->
   describe 'Unit tests', ->
 
     it 'throws an error if not defined apiURL', ->
-      expect(-> post.fetch()).toThrow('An api URL must be defined')
+      expect(-> post.fetch()).toThrow('An api or apiUrl must be defined')
 
   describe 'Fetching', ->
 

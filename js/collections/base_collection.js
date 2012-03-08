@@ -27,16 +27,16 @@
       }
     };
     Collection.prototype._wpAPI = function(cmd, options) {
-      var post_type, success, taxonomy, url;
+      var fetched, forced, post_type, success, taxonomy, url;
       if (cmd == null) {
         throw new Error('An api command must be defined');
       }
-      if (this.apiUrl == null) {
-        throw new Error('An api URL must be defind');
+      if (!((this.apiUrl != null) || (this.api != null))) {
+        throw new Error('An api or apiUrl must be defind');
       }
       this.isLoading = true;
       options = options && _.clone(options) || {};
-      url = this.apiUrl;
+      url = this.apiUrl || this.api.url;
       url += cmd + '/';
       options.params = options.params || {};
       this.currentCommand = cmd;
@@ -59,16 +59,37 @@
       success = options.success;
       options.success = __bind(function(resp, status, xhr) {
         this.isLoading = false;
+        if (this.api != null) {
+          this.api.storage.saveCollection(this);
+        }
         if (success != null) {
           return success(this, resp);
         }
       }, this);
       this.options = _.clone(options);
       delete this.options.success;
-      if (!options.add) {
-        this.reset();
+      fetched = false;
+      forced = options.forceRequest || false;
+      if ((this.api != null) && !forced) {
+        fetched = this.api.storage.getCollection(this);
       }
-      this.fetch(options);
+      if (!fetched) {
+        if (!options.add) {
+          this.reset();
+        }
+        this.fetch(options);
+      } else {
+        if (!options.silent) {
+          if (options.add) {
+            this.trigger('add', this, options);
+          } else {
+            this.trigger('reset', this, options);
+          }
+        }
+        if (success != null) {
+          success(this, null);
+        }
+      }
       return this;
     };
     Collection.prototype.resetVars = function() {

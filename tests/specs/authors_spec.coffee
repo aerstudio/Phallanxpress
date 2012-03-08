@@ -10,7 +10,7 @@ describe "Phallanxpress authors collection", ->
   describe 'Authors list', ->
     authors = request = null
     beforeEach ->
-      authors = api.authorList()
+      authors = api.authorList(forceRequest: true)
       request = mostRecentAjaxRequest()
       request.response TestResponses.author_list.success
 

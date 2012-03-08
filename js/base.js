@@ -1,11 +1,13 @@
 (function() {
-  var $, Backbone, Phallanxpress, previousPhallanxpress, root, _;
+  var $, Backbone, Phallanxpress, inBrowser, previousPhallanxpress, root, _;
   root = this;
   previousPhallanxpress = root.Phallanxpress;
   if (typeof exports !== 'undefined') {
     Phallanxpress = exports.Phallanxpress = {};
+    inBrowser = false;
   } else {
     Phallanxpress = root.Phallanxpress = {};
+    inBrowser = true;
   }
   Phallanxpress.VERSION = '0.1.0';
   _ = root._;

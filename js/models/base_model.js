@@ -13,17 +13,18 @@
       Model.__super__.constructor.apply(this, arguments);
     }
     Model.prototype.url = function() {
-      var url;
-      if (this.apiUrl == null) {
-        throw new Error('An api URL must be defined');
-      }
+      var rootUrl, url;
       if (this.apiCommand == null) {
         throw new Error('An api command must be defined');
       }
-      if (this.has('slug')) {
-        url = "" + this.apiUrl + this.apiCommand + "/?slug=" + (this.get('slug'));
-      } else if (this.id != null) {
-        url = "" + this.apiUrl + this.apiCommand + "/?id=" + this.id;
+      if (!((this.apiUrl != null) || (this.api != null))) {
+        throw new Error('An api or apiUrl must be defined');
+      }
+      rootUrl = this.apiUrl || this.api.url;
+      if (this.id != null) {
+        url = "" + rootUrl + this.apiCommand + "/?id=" + this.id;
+      } else if (this.has('slug')) {
+        url = "" + rootUrl + this.apiCommand + "/?slug=" + (this.get('slug'));
       }
       if (this.postType != null) {
         url += '&post_type=#{@post_type}';
@@ -32,6 +33,25 @@
         url += '&taxonomy=@{@taxonomy}';
       }
       return url;
+    };
+    Model.prototype.fetch = function(options) {
+      var fetched, forced;
+      options = options || {};
+      forced = options.forceRequest || false;
+      if ((this.api != null) && !forced) {
+        fetched = this.api.storage.getModel(this);
+      }
+      if (!fetched) {
+        Model.__super__.fetch.apply(this, arguments);
+      } else {
+        if (!options.silent) {
+          this.trigger('change', this, options);
+        }
+        if (options.success != null) {
+          options.success(this, null);
+        }
+      }
+      return this;
     };
     Model.prototype.parse = function(resp, xhr) {
       if (resp.status === 'ok') {

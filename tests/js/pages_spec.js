@@ -10,7 +10,9 @@
       var pages;
       pages = request = null;
       beforeEach(function() {
-        pages = api.pageList();
+        pages = api.pageList({
+          forceRequest: true
+        });
         request = mostRecentAjaxRequest();
         return request.response(TestResponses.page_list.success);
       });
@@ -33,7 +35,7 @@
       return it('throws an error if not defined apiURL', function() {
         return expect(function() {
           return page.fetch();
-        }).toThrow('An api URL must be defined');
+        }).toThrow('An api or apiUrl must be defined');
       });
     });
     return describe('Fetching', function() {

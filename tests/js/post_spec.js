@@ -12,7 +12,7 @@
       return it('throws an error if not defined apiURL', function() {
         return expect(function() {
           return post.fetch();
-        }).toThrow('An api URL must be defined');
+        }).toThrow('An api or apiUrl must be defined');
       });
     });
     return describe('Fetching', function() {

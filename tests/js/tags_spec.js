@@ -10,7 +10,9 @@
       var tags;
       tags = request = null;
       beforeEach(function() {
-        tags = api.tagList();
+        tags = api.tagList({
+          forceRequest: true
+        });
         request = mostRecentAjaxRequest();
         return request.response(TestResponses.tag_list.success);
       });

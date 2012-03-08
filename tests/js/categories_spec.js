@@ -11,7 +11,8 @@
       categories = request = null;
       beforeEach(function() {
         categories = api.categoryList({
-          taxonomy: 'cat'
+          taxonomy: 'cat',
+          forceRequest: true
         });
         request = mostRecentAjaxRequest();
         return request.response(TestResponses.category_list.success);

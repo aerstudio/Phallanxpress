@@ -10,7 +10,7 @@ describe "Phallanxpress pages collection", ->
   describe 'Pages list', ->
     pages = request = null
     beforeEach ->
-      pages = api.pageList()
+      pages = api.pageList(forceRequest: true)
       request = mostRecentAjaxRequest()
       request.response TestResponses.page_list.success
 
@@ -31,7 +31,7 @@ describe "Phallanxpress page model", ->
   describe 'Unit tests', ->
 
     it 'throws an error if not defined apiURL', ->
-      expect(-> page.fetch()).toThrow('An api URL must be defined')
+      expect(-> page.fetch()).toThrow('An api or apiUrl must be defined')
 
   describe 'Fetching', ->
 

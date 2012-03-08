@@ -10,40 +10,40 @@ describe "Phallanxpress posts collection", ->
   describe 'URL building', ->
 
     it "builds the right url by default", ->
-      posts = api.recentPosts()
+      posts = api.recentPosts(forceRequest: true)
       expect(mostRecentAjaxRequest().url).toEqual("#{api.url}get_recent_posts/?count=#{posts.defaultCount}&page=#{posts.page}")
 
     it "builds the right url with options, post types and taxonomies", ->
-      posts = api.recentPosts( taxonomy: 'new_tax', postType: 'type', params: {custom_fiels: 'field1,field2'})
+      posts = api.recentPosts( taxonomy: 'new_tax', postType: 'type', params: {custom_fiels: 'field1,field2'}, forceRequest: true)
       expect(mostRecentAjaxRequest().url).toEqual("#{api.url}get_recent_posts/?custom_fiels=field1%2Cfield2&count=32&page=1&post_type=type&taxonomy=new_tax")  
 
     it " builds url with id if a number is passed", ->
-      posts = api.categoryPosts(7)
+      posts = api.categoryPosts(7, forceRequest: true)
       expect(mostRecentAjaxRequest().url).toEqual("#{api.url}get_category_posts/?id=7&count=32&page=1")
 
     it " builds url with slug if a string is passed", ->
-      posts = api.categoryPosts('cat1')
+      posts = api.categoryPosts('cat1', forceRequest: true)
       expect(mostRecentAjaxRequest().url).toEqual("#{api.url}get_category_posts/?slug=cat1&count=32&page=1")
 
     it " builds url with id if a model is passed", ->
       cat = new Phallanxpress.Category( id: 7)
-      posts = api.categoryPosts(cat)
+      posts = api.categoryPosts(cat, forceRequest: true)
       expect(mostRecentAjaxRequest().url).toEqual("#{api.url}get_category_posts/?id=7&count=32&page=1")
 
   describe 'Pagination', ->
 
     it "gets the next page", ->
-      posts = api.recentPosts(count: 2)
+      posts = api.recentPosts(count: 2, forceRequest: true)
       posts.pageUp()
       expect(mostRecentAjaxRequest().url).toEqual("#{api.url}get_recent_posts/?count=2&page=2")        
 
     it "gets the previous page", ->
-      posts = api.recentPosts(taxonomy: 'cat', page: 2)
+      posts = api.recentPosts(taxonomy: 'cat', page: 2, forceRequest: true)
       posts.pageDown()
       expect(mostRecentAjaxRequest().url).toEqual("#{api.url}get_recent_posts/?count=32&page=1&taxonomy=cat")  
 
     it "gets a given page", ->
-      posts = api.recentPosts(taxonomy: 'cat', postType: 'type', page: 2)
+      posts = api.recentPosts(taxonomy: 'cat', postType: 'type', page: 2, forceRequest: true)
       posts.toPage(4)
       expect(mostRecentAjaxRequest().url).toEqual("#{api.url}get_recent_posts/?count=32&page=4&post_type=type&taxonomy=cat")    
 
@@ -61,7 +61,7 @@ describe "Phallanxpress posts collection", ->
     posts = null
 
     beforeEach ->
-      posts = api.recentPosts()
+      posts = api.recentPosts(forceRequest: true)
       request = mostRecentAjaxRequest()
       request.response TestResponses.posts.success
 
@@ -105,7 +105,7 @@ describe "Phallanxpress posts collection", ->
           this.collection.on('reset', this.render, this)
           
       )
-      v = api.recentPosts( view: View )
+      v = api.recentPosts( view: View, forceRequest: true )
       
       expect(render).toHaveBeenCalled()
 
@@ -113,9 +113,16 @@ describe "Phallanxpress posts collection", ->
       render = jasmine.createSpy('render')
       view = new Backbone.View
       view.render = render
-      v = api.recentPosts( view: view )
+      v = api.recentPosts( view: view, forceRequest: true )
       
       expect(render).toHaveBeenCalled()
+
+    it 'calls the success callback when finished', ->
+      success = jasmine.createSpy('success')
+      api.recentPosts( success: success, forceRequest: true )
+      request = mostRecentAjaxRequest()
+      request.response TestResponses.posts.success
+      expect(success).toHaveBeenCalled()
 
   describe 'Fetching methods', ->
 

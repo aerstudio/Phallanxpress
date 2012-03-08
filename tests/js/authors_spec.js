@@ -10,7 +10,9 @@
       var authors;
       authors = request = null;
       beforeEach(function() {
-        authors = api.authorList();
+        authors = api.authorList({
+          forceRequest: true
+        });
         request = mostRecentAjaxRequest();
         return request.response(TestResponses.author_list.success);
       });

@@ -23,10 +23,10 @@ class Phallanxpress.Collection extends Backbone.Collection
   _wpAPI: (cmd, options)->
     
     throw new Error('An api command must be defined') unless cmd?
-    throw new Error('An api URL must be defind') unless @apiUrl?
+    throw new Error('An api or apiUrl must be defind') unless @apiUrl? or @api?
     @isLoading = true
     options = options && _.clone(options) || {}
-    url = @apiUrl
+    url = @apiUrl || @api.url
     url += cmd+'/'
     options.params = options.params || {}
     @currentCommand = cmd
@@ -45,16 +45,33 @@ class Phallanxpress.Collection extends Backbone.Collection
     success = options.success;
     options.success = (resp, status, xhr) =>
       @isLoading = false
+      if @api?
+        @api.storage.saveCollection this
       success this, resp if success?
     
     # Cleaning for new request
     # and calling reset to redraw
     @options = _.clone(options)
     delete @options.success
-    unless options.add
-      do @reset 
     
-    @fetch(options)
+    fetched = false
+    forced = options.forceRequest || false
+    if @api? and not forced  
+      fetched = @api.storage.getCollection this
+
+    if not fetched
+      unless options.add
+        do @reset 
+      @fetch options 
+    else
+
+      if not options.silent
+        if options.add
+          @trigger('add', this, options)
+        else
+          @trigger('reset', this, options)
+
+      success this, null if success?
 
     this
 

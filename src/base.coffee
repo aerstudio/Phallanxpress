@@ -8,8 +8,10 @@ previousPhallanxpress = root.Phallanxpress
 # Creation of the top level namespace.
 if typeof exports isnt 'undefined'
   Phallanxpress = exports.Phallanxpress = {}
+  inBrowser = false
 else 
   Phallanxpress = root.Phallanxpress = {}
+  inBrowser = true
 
 Phallanxpress.VERSION = '0.1.0'
 

@@ -10,7 +10,7 @@ describe "Phallanxpress tags collection", ->
   describe 'Tags list', ->
     tags = request = null
     beforeEach ->
-      tags = api.tagList()
+      tags = api.tagList(forceRequest: true)
       request = mostRecentAjaxRequest()
       request.response TestResponses.tag_list.success
 

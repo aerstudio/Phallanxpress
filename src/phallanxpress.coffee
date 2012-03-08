@@ -7,18 +7,21 @@ class Phallanxpress.Api
 
     @url += '/' if @url.slice(-1) isnt '/'
 
-    a = document.createElement 'a'
-    a.href = @url
-    dnsprefetch = "<link rel=\"dns-prefetch\" href=\"#{a.protocol}//#{a.hostname}\">"
-    
-    linkTags = $("link[href*=\"#{a.protocol}//#{a.hostname}\"][rel=dns-prefetch]")
+    if window?
+      a = document.createElement 'a'
+      a.href = @url
+      dnsprefetch = "<link rel=\"dns-prefetch\" href=\"#{a.protocol}//#{a.hostname}\">"
+      
+      linkTags = $("link[href*=\"#{a.protocol}//#{a.hostname}\"][rel=dns-prefetch]")
 
-    $('head').append dnsprefetch if linkTags.length is 0
+      $('head').append dnsprefetch if linkTags.length is 0
+
+    @storage = new Phallanxpress.Storage(@url)
 
   recentPosts: (options)->
     options ||= {}
     posts = new Phallanxpress.Posts
-    posts.apiUrl = @url
+    posts.api = this
     view = @_bindView posts, options.view
     posts.recentPosts options
     if view?
@@ -29,7 +32,7 @@ class Phallanxpress.Api
   searchPosts: (query, options)->
     options ||= {}
     posts = new Phallanxpress.Posts
-    posts.apiUrl = @url
+    posts.api = this
     view = @_bindView posts, options.view
     posts.searchPosts query, options
     if view?
@@ -40,7 +43,7 @@ class Phallanxpress.Api
   datePosts: (query, options)->
     options ||= {}
     posts = new Phallanxpress.Posts
-    posts.apiUrl = @url
+    posts.api = this
     view = @_bindView posts, options.view
     posts.datePosts query, options
     if view?
@@ -51,7 +54,7 @@ class Phallanxpress.Api
   post:(id, options)->
     options ||= {}
     post = new Phallanxpress.Post
-    post.apiUrl = @url
+    post.api = this
     if _.isNumber id
       post.id = id
     else if _.isString id
@@ -69,7 +72,7 @@ class Phallanxpress.Api
   pageList: (options)->
     options ||= {}
     pages = new Phallanxpress.Pages
-    pages.apiUrl = @url
+    pages.api = this
     view = @_bindView pages, options.view
     pages.pageList(options)
     if view?
@@ -80,7 +83,7 @@ class Phallanxpress.Api
   page:(id, options)->
     options ||= {}
     page = new Phallanxpress.Page
-    page.apiUrl = @url
+    page.api = this
     if _.isNumber id
       page.id = id
     else if _.isString id
@@ -97,7 +100,7 @@ class Phallanxpress.Api
   categoryList: (options)->
     options ||= {}
     categories = new Phallanxpress.Categories
-    categories.apiUrl = @url
+    categories.api = this
     view = @_bindView categories, options.view
     categories.categoryList(options)
     if view?
@@ -109,7 +112,7 @@ class Phallanxpress.Api
   categoryPosts: (id, options)->
     options ||= {}
     posts = new Phallanxpress.Posts
-    posts.apiUrl = @url
+    posts.api = this
     view = @_bindView posts, options.view
     posts.categoryPosts id, options
     if view?
@@ -120,7 +123,7 @@ class Phallanxpress.Api
   tagList: (options)->
     options ||= {}
     tags = new Phallanxpress.Tags
-    tags.apiUrl = @url
+    tags.api = this
     view = @_bindView tags, options.view
     tags.tagList(options)
     if view?
@@ -132,7 +135,7 @@ class Phallanxpress.Api
   tagPosts: (id, options)->
     options ||= {}
     posts = new Phallanxpress.Posts
-    posts.apiUrl = @url
+    posts.api = this
     view = @_bindView posts, options.view
     posts.tagPosts id, options
     if view?
@@ -143,7 +146,7 @@ class Phallanxpress.Api
   authorList: (options)->
     options ||= {}
     authors = new Phallanxpress.Authors
-    authors.apiUrl = @url
+    authors.api = this
     view = @_bindView authors, options.view
     authors.authorList(options)
     if view?
@@ -154,7 +157,7 @@ class Phallanxpress.Api
   authorPosts: (id, options)->
     options ||= {}
     posts = new Phallanxpress.Posts
-    posts.apiUrl = @url
+    posts.api = this
     view = @_bindView posts, options.view
     posts.authorPosts id, options
     if view?
