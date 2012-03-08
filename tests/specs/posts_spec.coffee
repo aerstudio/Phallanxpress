@@ -68,6 +68,22 @@ describe "Phallanxpress posts collection", ->
     it 'gets the posts', ->
       expect(posts.length).toEqual(5);
 
+    it 'triggers a no posts event', ->
+      no_posts = jasmine.createSpy('no posts')
+      posts = api.searchPosts('no key')
+      posts.on('no posts', no_posts)
+      request = mostRecentAjaxRequest()
+      request.response TestResponses.posts.not_found      
+      expect(no_posts).toHaveBeenCalled()
+
+    it 'triggers an error event', ->
+      error = jasmine.createSpy('error')
+      posts = api.searchPosts('no key')
+      posts.on('error', error)
+      request = mostRecentAjaxRequest()
+      request.response TestResponses.posts.error      
+      expect(error).toHaveBeenCalled()
+
     it 'has the right length', ->
       expect(posts.length).toEqual(posts.count);
 

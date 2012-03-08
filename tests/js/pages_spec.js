@@ -42,7 +42,10 @@
       });
       it('fetches a page given an id', function() {
         page.fetch();
-        return expect(mostRecentAjaxRequest().url).toEqual("" + page.apiUrl + "get_page/?id=1");
+        request = mostRecentAjaxRequest();
+        request.response(TestResponses.page.success);
+        expect(request.url).toEqual("" + page.apiUrl + "get_page/?id=1");
+        return expect(page.get('content')).toBeDefined();
       });
       return it('fetches a page given a slug', function() {
         page.id = null;

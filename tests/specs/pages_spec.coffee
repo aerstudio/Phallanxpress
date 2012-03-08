@@ -40,7 +40,10 @@ describe "Phallanxpress page model", ->
 
     it 'fetches a page given an id', ->
       page.fetch()
-      expect(mostRecentAjaxRequest().url).toEqual("#{page.apiUrl}get_page/?id=1")
+      request = mostRecentAjaxRequest()
+      request.response TestResponses.page.success
+      expect(request.url).toEqual("#{page.apiUrl}get_page/?id=1")
+      expect(page.get('content')).toBeDefined()
 
     it 'fetches a page given a slug', ->
       page.id = null

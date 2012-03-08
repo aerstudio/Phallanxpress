@@ -94,6 +94,24 @@
       it('gets the posts', function() {
         return expect(posts.length).toEqual(5);
       });
+      it('triggers a no posts event', function() {
+        var no_posts;
+        no_posts = jasmine.createSpy('no posts');
+        posts = api.searchPosts('no key');
+        posts.on('no posts', no_posts);
+        request = mostRecentAjaxRequest();
+        request.response(TestResponses.posts.not_found);
+        return expect(no_posts).toHaveBeenCalled();
+      });
+      it('triggers an error event', function() {
+        var error;
+        error = jasmine.createSpy('error');
+        posts = api.searchPosts('no key');
+        posts.on('error', error);
+        request = mostRecentAjaxRequest();
+        request.response(TestResponses.posts.error);
+        return expect(error).toHaveBeenCalled();
+      });
       it('has the right length', function() {
         return expect(posts.length).toEqual(posts.count);
       });
