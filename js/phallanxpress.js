@@ -18,7 +18,7 @@
           $('head').append(dnsprefetch);
         }
       }
-      this.storage = new Phallanxpress.Storage(this.url);
+      this.cache = new Phallanxpress.Storage(this.url);
     }
     Api.prototype.recentPosts = function(options) {
       var posts, view;

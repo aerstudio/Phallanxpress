@@ -6,6 +6,34 @@ describe 'Phallanxpress storage', ->
     jasmine.Ajax.useMock()
     api = new Phallanxpress.Api('http://aerstudio.com')
 
+
+  describe "Enable / Disable", ->
+
+    posts = numRequests = null
+
+    beforeEach ->
+      numRequests = ajaxRequests.length
+      posts = api.recentPosts(forceRequest: true, params: { custom_fields: "e1,f2"})
+      request = mostRecentAjaxRequest()
+      request.response TestResponses.posts.success
+    
+    it "disables the cache", ->
+      do api.cache.disable
+      request.url += 'e'
+      numRequests = ajaxRequests.length
+      posts = api.recentPosts(params: { custom_fields: "e1,f2"})
+      expect(ajaxRequests.length).toEqual numRequests + 1
+      expect(mostRecentAjaxRequest().url).toEqual posts.url
+
+    it "enables the cache", ->
+      do api.cache.enable
+      request = mostRecentAjaxRequest()
+      request.url += 'e'
+      numRequests = ajaxRequests.length
+      posts = api.recentPosts(params: { custom_fields: "e1,f2"})
+      expect(ajaxRequests.length).toEqual numRequests
+      expect(mostRecentAjaxRequest().url).not.toEqual posts.url
+
   describe "Collections", ->
 
     posts = numRequests = null
@@ -57,7 +85,7 @@ describe 'Phallanxpress storage', ->
     it "makes a request if expired", ->
       runs ->
         numRequests = ajaxRequests.length
-        api.storage.expireTime = 1 / 3600000 * 10
+        api.cache.expireTime = 1 / 3600000 * 10
         posts = api.recentPosts( forceRequest: true, params: { custom_fields: "f6,f2"})
         expect(ajaxRequests.length).toEqual numRequests + 1
         request = mostRecentAjaxRequest()
@@ -98,7 +126,7 @@ describe 'Phallanxpress storage', ->
       runs ->
         numRequests = ajaxRequests.length
         post = api.post(1318, forceRequest: true)
-        api.storage.expireTime = 1 / 3600000 * 10
+        api.cache.expireTime = 1 / 3600000 * 10
         expect(ajaxRequests.length).toEqual numRequests + 1
         request = mostRecentAjaxRequest()
         request.response TestResponses.post.success

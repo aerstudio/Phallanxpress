@@ -11,6 +11,7 @@ With this plugin you can:
 * Retrieve the list of pages for navigation proposals.
 * Retrieve the list of authors.
 * All data and metadata associated for the post: author, comments, tags, etc.
+* Keep a cache using localStorage for faster browsing.
 
 ## Requisites
 
@@ -301,6 +302,9 @@ These are the next steps in development (in not specific order):
 * Use a cache with localStorage through `Api` object.
 
 ## Changelog
+
+### 0.1.1
+Added localStorage cache
 
 ### 0.1.0
 Initial release of phallanxpress.js

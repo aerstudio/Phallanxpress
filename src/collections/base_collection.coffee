@@ -37,16 +37,14 @@ class Phallanxpress.Collection extends Backbone.Collection
     options.params['taxonomy'] = taxonomy if taxonomy
     url += '?'+$.param(options.params) unless _.isEmpty(options.params)
     
-    
     @currentParams = options.params
-
     @url = url
 
     success = options.success;
     options.success = (resp, status, xhr) =>
       @isLoading = false
       if @api?
-        @api.storage.saveCollection this
+        @api.cache.saveCollection this
       success this, resp if success?
     
     # Cleaning for new request
@@ -57,7 +55,7 @@ class Phallanxpress.Collection extends Backbone.Collection
     fetched = false
     forced = options.forceRequest || false
     if @api? and not forced  
-      fetched = @api.storage.getCollection this
+      fetched = @api.cache.getCollection this
 
     if not fetched
       unless options.add

@@ -32,7 +32,7 @@ class Phallanxpress.Model extends Backbone.Model
     forced = options.forceRequest || false
 
     if @api? and not forced  
-      fetched = @api.storage.getModel this
+      fetched = @api.cache.getModel this
 
     if not fetched
       super 

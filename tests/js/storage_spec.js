@@ -6,6 +6,46 @@
       jasmine.Ajax.useMock();
       return api = new Phallanxpress.Api('http://aerstudio.com');
     });
+    describe("Enable / Disable", function() {
+      var numRequests, posts;
+      posts = numRequests = null;
+      beforeEach(function() {
+        numRequests = ajaxRequests.length;
+        posts = api.recentPosts({
+          forceRequest: true,
+          params: {
+            custom_fields: "e1,f2"
+          }
+        });
+        request = mostRecentAjaxRequest();
+        return request.response(TestResponses.posts.success);
+      });
+      it("disables the cache", function() {
+        api.cache.disable();
+        request.url += 'e';
+        numRequests = ajaxRequests.length;
+        posts = api.recentPosts({
+          params: {
+            custom_fields: "e1,f2"
+          }
+        });
+        expect(ajaxRequests.length).toEqual(numRequests + 1);
+        return expect(mostRecentAjaxRequest().url).toEqual(posts.url);
+      });
+      return it("enables the cache", function() {
+        api.cache.enable();
+        request = mostRecentAjaxRequest();
+        request.url += 'e';
+        numRequests = ajaxRequests.length;
+        posts = api.recentPosts({
+          params: {
+            custom_fields: "e1,f2"
+          }
+        });
+        expect(ajaxRequests.length).toEqual(numRequests);
+        return expect(mostRecentAjaxRequest().url).not.toEqual(posts.url);
+      });
+    });
     describe("Collections", function() {
       var numRequests, posts;
       posts = numRequests = null;
@@ -80,7 +120,7 @@
       return it("makes a request if expired", function() {
         runs(function() {
           numRequests = ajaxRequests.length;
-          api.storage.expireTime = 1 / 3600000 * 10;
+          api.cache.expireTime = 1 / 3600000 * 10;
           posts = api.recentPosts({
             forceRequest: true,
             params: {
@@ -136,7 +176,7 @@
           post = api.post(1318, {
             forceRequest: true
           });
-          api.storage.expireTime = 1 / 3600000 * 10;
+          api.cache.expireTime = 1 / 3600000 * 10;
           expect(ajaxRequests.length).toEqual(numRequests + 1);
           request = mostRecentAjaxRequest();
           request.response(TestResponses.post.success);

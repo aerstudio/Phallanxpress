@@ -39,7 +39,7 @@
       options = options || {};
       forced = options.forceRequest || false;
       if ((this.api != null) && !forced) {
-        fetched = this.api.storage.getModel(this);
+        fetched = this.api.cache.getModel(this);
       }
       if (!fetched) {
         Model.__super__.fetch.apply(this, arguments);

@@ -4,25 +4,46 @@ class Phallanxpress.Storage
   expireTime: 24 # Expiring time in hours
 
   constructor: (@name)->
+    do @enable
+
+  enable: ->
+    @storage = window.localStorage if window?
+
+  disable: ->
+    @storage = null
+
 
   saveCollection: (collection)->
-    return if collection.length is 0
+    return if collection.length is 0 or not @storage?
     col =
       ids: collection.pluck 'id'
       timestamp: new Date().getTime()
-    localStorage.setItem collection.url, JSON.stringify(col)
+    try 
+      @storage.setItem collection.url, JSON.stringify(col)
+    catch error
+      if error is QUOTA_EXCEEDED_ERR
+        return 
+      else
+        throw error
     collection.each( (model)=>
       @saveModel model
     )
-
     
   saveModel:(model)->
+    return unless @storage?
     now = new Date()
     model.set phallanxTimestamp: now.getTime(), silent: true
-    localStorage.setItem @name+model.constructor.name.toLowerCase()+'/'+model.id, JSON.stringify(model)
+    try 
+      @storage.setItem @name+model.constructor.name.toLowerCase()+'/'+model.id, JSON.stringify(model)
+    catch error
+      if error is QUOTA_EXCEEDED_ERR
+        return 
+      else
+        throw error
 
   getCollection: (collection) ->
-    col = JSON.parse localStorage.getItem collection.url
+    return false unless @storage?
+    col = JSON.parse @storage.getItem collection.url
     if col? 
       elapsedTime = new Date().getTime() - col.timestamp
       if elapsedTime < @expireTime * 3600000
@@ -43,7 +64,7 @@ class Phallanxpress.Storage
 
   getModel: (model) ->
     attr = @getModelAttributes model.id, model.constructor.name
-    return false unless attr?
+    return false unless attr? or @storage?
     if attr.phallanxTimestamp?
       timestamp = +attr.phallanxTimestamp || 0
       delete attr.phallanxTimestamp
@@ -57,10 +78,11 @@ class Phallanxpress.Storage
       false
 
   getModelAttributes: (id, modelName)->
-    JSON.parse localStorage.getItem @name+modelName.toLowerCase()+'/'+id
+    JSON.parse @storage.getItem @name+modelName.toLowerCase()+'/'+id
 
   destroyCollection: (collection)->
-    localStorage.removeItem collection.url
+    return unless @storage?
+    @storage.removeItem collection.url
 
 
 

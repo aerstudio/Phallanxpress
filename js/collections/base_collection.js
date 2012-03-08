@@ -60,7 +60,7 @@
       options.success = __bind(function(resp, status, xhr) {
         this.isLoading = false;
         if (this.api != null) {
-          this.api.storage.saveCollection(this);
+          this.api.cache.saveCollection(this);
         }
         if (success != null) {
           return success(this, resp);
@@ -71,7 +71,7 @@
       fetched = false;
       forced = options.forceRequest || false;
       if ((this.api != null) && !forced) {
-        fetched = this.api.storage.getCollection(this);
+        fetched = this.api.cache.getCollection(this);
       }
       if (!fetched) {
         if (!options.add) {
