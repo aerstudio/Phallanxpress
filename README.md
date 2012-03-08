@@ -339,7 +339,13 @@ The [Jasmine](http://pivotal.github.com/jasmine/) suite is used for running spec
 
 To run the tests, just drag and drop the file `index.html` in the `tests` folder to your browser.
 
-The tests and specs are in the `specs` folder.
+The tests and specs are in the `specs` folder. Specs are written in Coffeescript. Run in your terminal:
+
+```bash
+$ cake test
+```
+
+To automatically compile coffeescript files.
 
 For more info about how to use Jasmine, please go to the [Jasmine wiki](https://github.com/pivotal/jasmine/wiki).
 

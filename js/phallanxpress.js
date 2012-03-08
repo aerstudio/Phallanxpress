@@ -131,6 +131,7 @@
     };
     Api.prototype.categoryPosts = function(id, options) {
       var posts, view;
+      options || (options = {});
       posts = new Phallanxpress.Posts;
       posts.apiUrl = this.url;
       view = this._bindView(posts, options.view);
@@ -156,6 +157,7 @@
     };
     Api.prototype.tagPosts = function(id, options) {
       var posts, view;
+      options || (options = {});
       posts = new Phallanxpress.Posts;
       posts.apiUrl = this.url;
       view = this._bindView(posts, options.view);
@@ -181,6 +183,7 @@
     };
     Api.prototype.authorPosts = function(id, options) {
       var posts, view;
+      options || (options = {});
       posts = new Phallanxpress.Posts;
       posts.apiUrl = this.url;
       view = this._bindView(posts, options.view);

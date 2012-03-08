@@ -50,7 +50,8 @@ class Phallanxpress.Posts extends Phallanxpress.Collection
   toPage: (page, options)->
     options = options && _.clone(options) || {}
     options = _.defaults(options, @options) if @options?
-    if page? and page >= 1 and page <= @pages
+    
+    if page? and page >= 1 and (not @pages? or page <= @pages)
       options.page = page
       @_wpAPI(@currentCommand, @_pageOptions(@apiObject, options))
     else

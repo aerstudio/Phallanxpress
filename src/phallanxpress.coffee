@@ -107,6 +107,7 @@ class Phallanxpress.Api
 
 
   categoryPosts: (id, options)->
+    options ||= {}
     posts = new Phallanxpress.Posts
     posts.apiUrl = @url
     view = @_bindView posts, options.view
@@ -129,6 +130,7 @@ class Phallanxpress.Api
 
 
   tagPosts: (id, options)->
+    options ||= {}
     posts = new Phallanxpress.Posts
     posts.apiUrl = @url
     view = @_bindView posts, options.view
@@ -150,6 +152,7 @@ class Phallanxpress.Api
       authors
 
   authorPosts: (id, options)->
+    options ||= {}
     posts = new Phallanxpress.Posts
     posts.apiUrl = @url
     view = @_bindView posts, options.view

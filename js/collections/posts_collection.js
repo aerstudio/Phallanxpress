@@ -48,7 +48,7 @@
       if (this.options != null) {
         options = _.defaults(options, this.options);
       }
-      if ((page != null) && page >= 1 && page <= this.pages) {
+      if ((page != null) && page >= 1 && (!(this.pages != null) || page <= this.pages)) {
         options.page = page;
         return this._wpAPI(this.currentCommand, this._pageOptions(this.apiObject, options));
       } else {

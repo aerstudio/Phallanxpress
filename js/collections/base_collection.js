@@ -40,7 +40,7 @@
       url += cmd + '/';
       options.params = options.params || {};
       this.currentCommand = cmd;
-      post_type = options.post_type || this.postType;
+      post_type = options.postType || this.postType;
       if (post_type != null) {
         options.params['post_type'] = post_type;
       }

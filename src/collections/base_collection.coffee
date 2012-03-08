@@ -30,7 +30,7 @@ class Phallanxpress.Collection extends Backbone.Collection
     url += cmd+'/'
     options.params = options.params || {}
     @currentCommand = cmd
-    post_type = options.post_type or @postType
+    post_type = options.postType or @postType
     options.params['post_type'] = post_type if post_type?
     options.params['custom_fields'] = @customFields if @customFields
     taxonomy = options.taxonomy or @taxonomy
