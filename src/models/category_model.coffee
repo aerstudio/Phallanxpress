@@ -19,7 +19,8 @@ class Phallanxpress.Category extends Phallanxpress.Model
 
   posts: (options)->
     posts = new Phallanxpress.Posts
-    posts.get_category_posts( id: @id)
+    posts.apiUrl = @apiUrl
+    posts.categoryPosts( id: @id, options)
     posts
 
 

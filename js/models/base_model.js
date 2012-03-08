@@ -14,16 +14,17 @@
     }
     Model.prototype.url = function() {
       var url;
-      if (!this.apiUrl) {
-        throw new Error('An api URL must be defind');
+      console.log(this.apiCommand);
+      if (this.apiUrl == null) {
+        throw new Error('An api URL must be defined');
       }
-      if (!this.apiCommand) {
-        throw new Error('An api command must be defind');
+      if (this.apiCommand == null) {
+        throw new Error('An api command must be defined');
       }
       if (this.has('slug')) {
-        url = "" + this.apiURL + apiCommand + "/?slug=" + (this.get('slug'));
+        url = "" + this.apiUrl + this.apiCommand + "/?slug=" + (this.get('slug'));
       } else if (this.id != null) {
-        url = "" + this.apiURL + apiCommand + "/?id=" + this.id;
+        url = "" + this.apiUrl + this.apiCommand + "/?id=" + this.id;
       }
       if (this.postType != null) {
         url += '&post_type=#{@post_type}';

@@ -14,12 +14,14 @@ class Phallanxpress.Model extends Backbone.Model
 
 
   url: ->
-    throw new Error('An api URL must be defind') unless @apiUrl
-    throw new Error('An api command must be defind') unless @apiCommand
+    console.log @apiCommand
+    throw new Error('An api URL must be defined') unless @apiUrl?
+    throw new Error('An api command must be defined') unless @apiCommand?
+
     if @has('slug')
-      url = "#{@apiURL}#{apiCommand}/?slug=#{@get('slug')}"
+      url = "#{@apiUrl}#{@apiCommand}/?slug=#{@get('slug')}"
     else if @id?
-      url = "#{@apiURL}#{apiCommand}/?id=#{@id}"
+      url = "#{@apiUrl}#{@apiCommand}/?id=#{@id}"
     url += '&post_type=#{@post_type}' if @postType?
     url += '&taxonomy=@{@taxonomy}' if @taxonomy?
     url

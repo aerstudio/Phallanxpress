@@ -20,9 +20,10 @@
     Category.prototype.posts = function(options) {
       var posts;
       posts = new Phallanxpress.Posts;
-      posts.get_category_posts({
+      posts.apiUrl = this.apiUrl;
+      posts.categoryPosts({
         id: this.id
-      });
+      }, options);
       return posts;
     };
     return Category;
