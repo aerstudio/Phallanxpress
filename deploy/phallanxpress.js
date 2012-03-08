@@ -11,7 +11,7 @@
   root = this;
   previousPhallanxpress = root.Phallanxpress;
   if (typeof exports !== 'undefined') {
-    Phallanxpress = exports;
+    Phallanxpress = exports.Phallanxpress = {};
   } else {
     Phallanxpress = root.Phallanxpress = {};
   }
@@ -31,18 +31,27 @@
   };
   Phallanxpress.Api = (function() {
     function Api(url) {
-      var a, dnsprefetch;
+      var a, dnsprefetch, linkTags;
       this.url = url;
-      Phallanxpress.apiURL = this.url;
+      if (this.url == null) {
+        throw new Error('URL must be defined');
+      }
+      if (this.url.slice(-1) !== '/') {
+        this.url += '/';
+      }
       a = document.createElement('a');
       a.href = this.url;
       dnsprefetch = "<link rel=\"dns-prefetch\" href=\"" + a.protocol + "//" + a.hostname + "\">";
-      $('head').append(dnsprefetch);
+      linkTags = $("link[href*=\"" + a.protocol + "//" + a.hostname + "\"][rel=dns-prefetch]");
+      if (linkTags.length === 0) {
+        $('head').append(dnsprefetch);
+      }
     }
     Api.prototype.recentPosts = function(options) {
       var posts, view;
       options || (options = {});
       posts = new Phallanxpress.Posts;
+      posts.apiUrl = this.url;
       view = this._bindView(posts, options.view);
       posts.recentPosts(options);
       if (view != null) {
@@ -55,6 +64,7 @@
       var posts, view;
       options || (options = {});
       posts = new Phallanxpress.Posts;
+      posts.apiUrl = this.url;
       view = this._bindView(posts, options.view);
       posts.searchPosts(query, options);
       if (view != null) {
@@ -67,6 +77,7 @@
       var posts, view;
       options || (options = {});
       posts = new Phallanxpress.Posts;
+      posts.apiUrl = this.url;
       view = this._bindView(posts, options.view);
       posts.datePosts(query, options);
       if (view != null) {
@@ -79,6 +90,7 @@
       var post, view;
       options || (options = {});
       post = new Phallanxpress.Post;
+      post.apiUrl = this.url;
       if (_.isNumber(id)) {
         post.id = id;
       } else if (_.isString(id)) {
@@ -103,6 +115,7 @@
       var pages, view;
       options || (options = {});
       pages = new Phallanxpress.Pages;
+      pages.apiUrl = this.url;
       view = this._bindView(pages, options.view);
       pages.pageList(options);
       if (view != null) {
@@ -115,6 +128,7 @@
       var page, view;
       options || (options = {});
       page = new Phallanxpress.Page;
+      page.apiUrl = this.url;
       if (_.isNumber(id)) {
         page.id = id;
       } else if (_.isString(id)) {
@@ -136,6 +150,7 @@
       var categories, view;
       options || (options = {});
       categories = new Phallanxpress.Categories;
+      categories.apiUrl = this.url;
       view = this._bindView(categories, options.view);
       categories.categoryList(options);
       if (view != null) {
@@ -146,7 +161,9 @@
     };
     Api.prototype.categoryPosts = function(id, options) {
       var posts, view;
+      options || (options = {});
       posts = new Phallanxpress.Posts;
+      posts.apiUrl = this.url;
       view = this._bindView(posts, options.view);
       posts.categoryPosts(id, options);
       if (view != null) {
@@ -159,6 +176,7 @@
       var tags, view;
       options || (options = {});
       tags = new Phallanxpress.Tags;
+      tags.apiUrl = this.url;
       view = this._bindView(tags, options.view);
       tags.tagList(options);
       if (view != null) {
@@ -169,7 +187,9 @@
     };
     Api.prototype.tagPosts = function(id, options) {
       var posts, view;
+      options || (options = {});
       posts = new Phallanxpress.Posts;
+      posts.apiUrl = this.url;
       view = this._bindView(posts, options.view);
       posts.tagPosts(id, options);
       if (view != null) {
@@ -182,6 +202,7 @@
       var authors, view;
       options || (options = {});
       authors = new Phallanxpress.Authors;
+      authors.apiUrl = this.url;
       view = this._bindView(authors, options.view);
       authors.authorList(options);
       if (view != null) {
@@ -192,7 +213,9 @@
     };
     Api.prototype.authorPosts = function(id, options) {
       var posts, view;
+      options || (options = {});
       posts = new Phallanxpress.Posts;
+      posts.apiUrl = this.url;
       view = this._bindView(posts, options.view);
       posts.authorPosts(id, options);
       if (view != null) {
@@ -243,14 +266,18 @@
     function Model() {
       Model.__super__.constructor.apply(this, arguments);
     }
-    Model.prototype.apiCommand = '';
-    Model.prototype.parseTag = '';
     Model.prototype.url = function() {
       var url;
+      if (this.apiUrl == null) {
+        throw new Error('An api URL must be defined');
+      }
+      if (this.apiCommand == null) {
+        throw new Error('An api command must be defined');
+      }
       if (this.has('slug')) {
-        url = "" + Phallanxpress.apiURL + apiCommand + "/?slug=" + (this.get('slug'));
+        url = "" + this.apiUrl + this.apiCommand + "/?slug=" + (this.get('slug'));
       } else if (this.id != null) {
-        url = "" + Phallanxpress.apiURL + apiCommand + "/?id=" + this.id;
+        url = "" + this.apiUrl + this.apiCommand + "/?id=" + this.id;
       }
       if (this.postType != null) {
         url += '&post_type=#{@post_type}';
@@ -262,7 +289,11 @@
     };
     Model.prototype.parse = function(resp, xhr) {
       if (resp.status === 'ok') {
-        return resp[this.parseTag];
+        if (_.isEmpty(this.parseTag)) {
+          return resp;
+        } else {
+          return resp[this.parseTag];
+        }
       } else {
         return resp;
       }
@@ -286,14 +317,6 @@
       return this.collection.filter(__bind(function(model) {
         return model.get('parent') === this.id;
       }, this));
-    };
-    Category.prototype.posts = function(options) {
-      var posts;
-      posts = new Phallanxpress.Posts;
-      posts.get_category_posts({
-        id: this.id
-      });
-      return posts;
     };
     return Category;
   })();
@@ -344,15 +367,18 @@
     Collection.prototype._wpAPI = function(cmd, options) {
       var post_type, success, taxonomy, url;
       if (cmd == null) {
-        throw new Error('an api command must be defined');
+        throw new Error('An api command must be defined');
+      }
+      if (this.apiUrl == null) {
+        throw new Error('An api URL must be defind');
       }
       this.isLoading = true;
       options = options && _.clone(options) || {};
-      url = Phallanxpress.apiURL;
+      url = this.apiUrl;
       url += cmd + '/';
       options.params = options.params || {};
       this.currentCommand = cmd;
-      post_type = options.post_type || this.postType;
+      post_type = options.postType || this.postType;
       if (post_type != null) {
         options.params['post_type'] = post_type;
       }
@@ -468,7 +494,7 @@
       if (this.options != null) {
         options = _.defaults(options, this.options);
       }
-      if ((page != null) && page >= 1 && page <= this.pages) {
+      if ((page != null) && page >= 1 && (!(this.pages != null) || page <= this.pages)) {
         options.page = page;
         return this._wpAPI(this.currentCommand, this._pageOptions(this.apiObject, options));
       } else {
