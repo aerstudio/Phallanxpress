@@ -60,6 +60,31 @@ You can initialize the api just giving the url pointing to your wordpress json a
 phallanx = new Phallanxpress.Api('http://www.mywordpress.com/api')
 ```
 
+### Cache
+Phallanxpress uses the [localStorage](http://dev.w3.org/html5/webstorage/#the-localstorage-attribute) attribute to save cache data to minimize loading times.
+
+You can enable or disable it with the next methods:
+
+```javascript
+phallanx.cache.enable();
+phallanx.cache.disable();
+```
+
+It is always enable by default if supported by the browser.
+
+You can control the expire time for each call with variable `expireTime`. 
+
+```javascript
+phallanx.cache.expireTime = 24 // Time for the cache to expire (in hours)
+```
+
+You can force the request when make a query passing the variable `forceRequest` in every query and skip the cache, for example to get new comments.
+
+```javascript
+phallanx.recentPosts({ forceRequest: true })
+```
+
+
 ### Posts
 
 #### Recent posts: `recentPosts`
@@ -304,10 +329,10 @@ These are the next steps in development (in not specific order):
 ## Changelog
 
 ### 0.1.1
-Added localStorage cache
+Added localStorage cache.
 
 ### 0.1.0
-Initial release of phallanxpress.js
+Initial release of phallanxpress.js.
 
 
 
