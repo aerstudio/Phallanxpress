@@ -12,14 +12,18 @@
     function Model() {
       Model.__super__.constructor.apply(this, arguments);
     }
-    Model.prototype.apiCommand = '';
-    Model.prototype.parseTag = '';
     Model.prototype.url = function() {
       var url;
+      if (!this.apiUrl) {
+        throw new Error('An api URL must be defind');
+      }
+      if (!this.apiCommand) {
+        throw new Error('An api command must be defind');
+      }
       if (this.has('slug')) {
-        url = "" + Phallanxpress.apiURL + apiCommand + "/?slug=" + (this.get('slug'));
+        url = "" + this.apiURL + apiCommand + "/?slug=" + (this.get('slug'));
       } else if (this.id != null) {
-        url = "" + Phallanxpress.apiURL + apiCommand + "/?id=" + this.id;
+        url = "" + this.apiURL + apiCommand + "/?id=" + this.id;
       }
       if (this.postType != null) {
         url += '&post_type=#{@post_type}';
@@ -31,7 +35,11 @@
     };
     Model.prototype.parse = function(resp, xhr) {
       if (resp.status === 'ok') {
-        return resp[this.parseTag];
+        if (_.isEmpty(this.parseTag)) {
+          return resp;
+        } else {
+          return resp[this.parseTag];
+        }
       } else {
         return resp;
       }

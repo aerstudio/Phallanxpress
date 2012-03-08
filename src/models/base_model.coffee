@@ -12,21 +12,24 @@
 
 class Phallanxpress.Model extends Backbone.Model
 
-  apiCommand: ''
-  parseTag: ''
 
   url: ->
+    throw new Error('An api URL must be defind') unless @apiUrl
+    throw new Error('An api command must be defind') unless @apiCommand
     if @has('slug')
-      url = "#{Phallanxpress.apiURL}#{apiCommand}/?slug=#{@get('slug')}"
+      url = "#{@apiURL}#{apiCommand}/?slug=#{@get('slug')}"
     else if @id?
-      url = "#{Phallanxpress.apiURL}#{apiCommand}/?id=#{@id}"
+      url = "#{@apiURL}#{apiCommand}/?id=#{@id}"
     url += '&post_type=#{@post_type}' if @postType?
     url += '&taxonomy=@{@taxonomy}' if @taxonomy?
     url
 
   parse:(resp, xhr)->
     if resp.status is 'ok'
-      return resp[@parseTag] 
+      if _.isEmpty(@parseTag)
+        return resp
+      else
+        return resp[@parseTag] 
     else
       resp
 

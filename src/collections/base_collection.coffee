@@ -22,10 +22,11 @@ class Phallanxpress.Collection extends Backbone.Collection
 
   _wpAPI: (cmd, options)->
     
-    throw new Error('an api command must be defined') unless cmd?
+    throw new Error('An api command must be defined') unless cmd?
+    throw new Error('An api URL must be defind') unless @apiUrl?
     @isLoading = true
     options = options && _.clone(options) || {}
-    url = Phallanxpress.apiURL
+    url = @apiUrl
     url += cmd+'/'
     options.params = options.params || {}
     @currentCommand = cmd

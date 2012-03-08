@@ -1,11 +1,11 @@
 describe "Phallanxpress posts collection", ->
 
-  api = null
+  request = fakeResponse = api = null
 
   beforeEach ->
     jasmine.Ajax.useMock()
-    api = new Phallanxpress.Api('http://www.p-pi.org/blog/api/')
-
+    api = new Phallanxpress.Api('http://domain.com')
+    fakeResponse = TestResponses.posts
 
   it "gets recent posts", ->
     posts = api.recentPosts()

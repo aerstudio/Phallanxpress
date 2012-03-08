@@ -232,6 +232,12 @@ If you want to make your own models based on custom post types or custom taxonom
 
 
 #### Collections
+All the collections extends from `Phallanxpress.Collection` object.
+They implement the method:
+
+* `getBySlug(slug)`: Returns the model associated with the given slug. Returns `null` if not found or throws an error if more than one are found.
+
+
 ##### Posts: `Phallanxpress.Posts`
 Implements the methods `recentPosts`, `searchPosts`, `datePosts`, `categoryPosts`, `tagPosts`, `authorPosts`.
 
@@ -308,10 +314,10 @@ You can fork the repository, make your contribution to the code and asking for a
 
 #### Develop
 All source files are in the folder `src`. Coffeescript is used and a classical class structure is followed.
-You can run 
+You can run this command in your terminal from the respository root folder:
 	
-```javascript
-cake watch
+```bash
+$ cake watch
 ```
 
 And your coffee files will be automatically compiled to `deploy` folder everytime they change.
@@ -320,10 +326,10 @@ If you add some files to the library, you should add it to the `output` array in
 
 
 #### Build
-To build the library you have to run the next command:
+To build the library you have to run the next command in your terminal from the repository root folder:
 
-```javascript
-cake build
+```bash
+$ cake build
 ```
 	
 This will create to files in the `deploy` folder: `phallanxpress.js`, the all-in-one-file development library; and `phallaxpress.min.js`, the minified and compressed version of the library.

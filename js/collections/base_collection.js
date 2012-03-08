@@ -29,11 +29,14 @@
     Collection.prototype._wpAPI = function(cmd, options) {
       var post_type, success, taxonomy, url;
       if (cmd == null) {
-        throw new Error('an api command must be defined');
+        throw new Error('An api command must be defined');
+      }
+      if (this.apiUrl == null) {
+        throw new Error('An api URL must be defind');
       }
       this.isLoading = true;
       options = options && _.clone(options) || {};
-      url = Phallanxpress.apiURL;
+      url = this.apiUrl;
       url += cmd + '/';
       options.params = options.params || {};
       this.currentCommand = cmd;

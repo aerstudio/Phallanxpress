@@ -1,18 +1,27 @@
 (function() {
   Phallanxpress.Api = (function() {
     function Api(url) {
-      var a, dnsprefetch;
+      var a, dnsprefetch, linkTags;
       this.url = url;
-      Phallanxpress.apiURL = this.url;
+      if (this.url == null) {
+        throw new Error('URL must be defined');
+      }
+      if (this.url.slice(-1) !== '/') {
+        this.url += '/';
+      }
       a = document.createElement('a');
       a.href = this.url;
       dnsprefetch = "<link rel=\"dns-prefetch\" href=\"" + a.protocol + "//" + a.hostname + "\">";
-      $('head').append(dnsprefetch);
+      linkTags = $("link[href*=\"" + a.protocol + "//" + a.hostname + "\"][rel=dns-prefetch]");
+      if (linkTags.length === 0) {
+        $('head').append(dnsprefetch);
+      }
     }
     Api.prototype.recentPosts = function(options) {
       var posts, view;
       options || (options = {});
       posts = new Phallanxpress.Posts;
+      posts.apiUrl = this.url;
       view = this._bindView(posts, options.view);
       posts.recentPosts(options);
       if (view != null) {
@@ -25,6 +34,7 @@
       var posts, view;
       options || (options = {});
       posts = new Phallanxpress.Posts;
+      posts.apiUrl = this.url;
       view = this._bindView(posts, options.view);
       posts.searchPosts(query, options);
       if (view != null) {
@@ -37,6 +47,7 @@
       var posts, view;
       options || (options = {});
       posts = new Phallanxpress.Posts;
+      posts.apiUrl = this.url;
       view = this._bindView(posts, options.view);
       posts.datePosts(query, options);
       if (view != null) {
@@ -49,6 +60,7 @@
       var post, view;
       options || (options = {});
       post = new Phallanxpress.Post;
+      post.apiUrl = this.url;
       if (_.isNumber(id)) {
         post.id = id;
       } else if (_.isString(id)) {
@@ -73,6 +85,7 @@
       var pages, view;
       options || (options = {});
       pages = new Phallanxpress.Pages;
+      pages.apiUrl = this.url;
       view = this._bindView(pages, options.view);
       pages.pageList(options);
       if (view != null) {
@@ -85,6 +98,7 @@
       var page, view;
       options || (options = {});
       page = new Phallanxpress.Page;
+      page.apiUrl = this.url;
       if (_.isNumber(id)) {
         page.id = id;
       } else if (_.isString(id)) {
@@ -106,6 +120,7 @@
       var categories, view;
       options || (options = {});
       categories = new Phallanxpress.Categories;
+      categories.apiUrl = this.url;
       view = this._bindView(categories, options.view);
       categories.categoryList(options);
       if (view != null) {
@@ -117,6 +132,7 @@
     Api.prototype.categoryPosts = function(id, options) {
       var posts, view;
       posts = new Phallanxpress.Posts;
+      posts.apiUrl = this.url;
       view = this._bindView(posts, options.view);
       posts.categoryPosts(id, options);
       if (view != null) {
@@ -129,6 +145,7 @@
       var tags, view;
       options || (options = {});
       tags = new Phallanxpress.Tags;
+      tags.apiUrl = this.url;
       view = this._bindView(tags, options.view);
       tags.tagList(options);
       if (view != null) {
@@ -140,6 +157,7 @@
     Api.prototype.tagPosts = function(id, options) {
       var posts, view;
       posts = new Phallanxpress.Posts;
+      posts.apiUrl = this.url;
       view = this._bindView(posts, options.view);
       posts.tagPosts(id, options);
       if (view != null) {
@@ -152,6 +170,7 @@
       var authors, view;
       options || (options = {});
       authors = new Phallanxpress.Authors;
+      authors.apiUrl = this.url;
       view = this._bindView(authors, options.view);
       authors.authorList(options);
       if (view != null) {
@@ -163,6 +182,7 @@
     Api.prototype.authorPosts = function(id, options) {
       var posts, view;
       posts = new Phallanxpress.Posts;
+      posts.apiUrl = this.url;
       view = this._bindView(posts, options.view);
       posts.authorPosts(id, options);
       if (view != null) {
