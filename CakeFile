@@ -7,6 +7,8 @@ config =
 	compiled: 'js'
 	deploy: 'deploy'
 	source: 'src'
+	test: 'tests'
+	spec: 'tests/specs'
 
 output =
 	'phallanxpress': [
@@ -29,26 +31,29 @@ output =
 
 task 'watch', 'Watch & compile changes in source dir', ->
 	
-	watch = exec "coffee -o #{config.compiled}/ -cwb #{config.source}/"
+	watch = exec "coffee -o #{config.compiled}/ -cw #{config.source}/"
 	watch.stdout.on 'data', (data) ->
 		process.stdout.write data
-		
+
+task 'test', 'Watch and compile changes in src dir and test dir', ->
+	watch = exec "coffee -o #{config.test}/js/ -cw #{config.spec}/"
+	watch.stdout.on 'data', (data) ->
+		process.stdout.write data		
 
 task 'build', '', ->
 	
 	for target, files of output
 
 		mapped = files.map (file) ->
-			file = "#{config.source}/#{file}.js.coffee"
+			file = "#{config.source}/#{file}.coffee"
 
 		file = "#{config.deploy}/#{target}.js"
 
-		exec "coffee -j #{file} -cb #{(mapped.join ' ')}"
-		console.log "coffee -j #{file} -cb #{(mapped.join ' ')}"
+		toExec =  "coffee -j #{file} -c #{(mapped.join ' ')}"
+		exec toExec
+		console.log toExec
 
 		fs.readFile file, 'utf8', (err, data) ->
-			throw new Error(err) if err?	
-
 			ast = uglify.parser.parse data
 			ast = uglify.uglify.ast_mangle ast
 			ast = uglify.uglify.ast_squeeze ast

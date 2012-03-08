@@ -1,8 +1,4 @@
 
-Phallanxpress ||= {}
-Phallanxpress.Models ||= {}
-Phallanxpress.Collections ||= {}
-
 class Phallanxpress.Api
 
   constructor: (@url)->

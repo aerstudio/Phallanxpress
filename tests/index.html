@@ -1,0 +1,61 @@
+<html>
+<head>
+    <title>Phallanxpress</title>
+    <!-- <link href='http://fonts.googleapis.com/css?family=Play:400,700' rel='stylesheet' type='text/css'> -->
+
+
+    <link rel="stylesheet" type="text/css" href="vendor/jasmine.css">
+
+    
+</head>
+<body>
+    <!-- Backbone -->
+    <script src="vendor/jquery.js"></script>
+    <script src="vendor/underscore.js"></script>
+    <script src="vendor/backbone.js"></script>
+
+    <!-- Jasmine -->
+    <script src="vendor/jasmine.js"></script>
+    <script src="vendor/jasmine-html.js"></script>
+
+    <!-- Specs -->
+    <script src="js/posts_spec.js"></script>
+
+
+    
+
+    
+    <script src="../deploy/phallanxpress.js"></script>
+
+    <script>
+
+        (function() {
+          var jasmineEnv = jasmine.getEnv();
+          jasmineEnv.updateInterval = 1000;
+
+          var trivialReporter = new jasmine.TrivialReporter();
+
+          jasmineEnv.addReporter(trivialReporter);
+
+          jasmineEnv.specFilter = function(spec) {
+            return trivialReporter.specFilter(spec);
+          };
+
+          var currentWindowOnload = window.onload;
+
+          window.onload = function() {
+            if (currentWindowOnload) {
+              currentWindowOnload();
+            }
+            execJasmine();
+          };
+
+          function execJasmine() {
+            jasmineEnv.execute();
+          }
+
+        })();
+        
+    </script>
+</body>
+</html>

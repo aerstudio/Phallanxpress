@@ -30,18 +30,16 @@ class Phallanxpress.Collection extends Backbone.Collection
     options.params = options.params || {}
     @currentCommand = cmd
     post_type = options.post_type or @postType
-    params = "?post_type=#{post_type}" if post_type?
-    params += '&' + $.param(options.params) unless _.isEmpty(options.params)
-    url += params
-    url += '&'+$.param(@customFields) if @customFields?
+    options.params['post_type'] = post_type if post_type?
+    options.params['custom_fields'] = @customFields if @customFields
     taxonomy = options.taxonomy or @taxonomy
-    url += "&taxonomy=#{taxonomy}" if  taxonomy?
+    options.params['taxonomy'] = taxonomy if taxonomy
+    url += '?'+$.param(options.params) unless _.isEmpty(options.params)
+    
     
     @currentParams = options.params
 
     @url = url
-    log "[WP API] cmd: #{cmd}, options: ", options
-    log "[WP API] url: #{url}"
 
     success = options.success;
     options.success = (resp, status, xhr) =>
