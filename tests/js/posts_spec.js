@@ -2,6 +2,7 @@ describe("Phallanxpress posts collection", function() {
   var api;
   api = null;
   beforeEach(function() {
+    jasmine.Ajax.useMock();
     return api = new Phallanxpress.Api('http://www.p-pi.org/blog/api/');
   });
   it("gets recent posts", function() {

@@ -3,7 +3,7 @@
   root = this;
   previousPhallanxpress = root.Phallanxpress;
   if (typeof exports !== 'undefined') {
-    Phallanxpress = exports;
+    Phallanxpress = exports.Phallanxpress = {};
   } else {
     Phallanxpress = root.Phallanxpress = {};
   }

@@ -3,6 +3,7 @@ describe "Phallanxpress posts collection", ->
   api = null
 
   beforeEach ->
+    jasmine.Ajax.useMock()
     api = new Phallanxpress.Api('http://www.p-pi.org/blog/api/')
 
 

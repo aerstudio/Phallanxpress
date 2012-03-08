@@ -1,8 +1,7 @@
 <html>
 <head>
     <title>Phallanxpress</title>
-    <!-- <link href='http://fonts.googleapis.com/css?family=Play:400,700' rel='stylesheet' type='text/css'> -->
-
+    
 
     <link rel="stylesheet" type="text/css" href="vendor/jasmine.css">
 
@@ -17,15 +16,37 @@
     <!-- Jasmine -->
     <script src="vendor/jasmine.js"></script>
     <script src="vendor/jasmine-html.js"></script>
+    <script src="vendor/mock-ajax.js"></script>
+
+    <script src="helpers/test_responses.js"></script>
 
     <!-- Specs -->
     <script src="js/posts_spec.js"></script>
 
 
+    <!-- Phallanxpress -->
+    <script src="../js/base.js"></script>
+    <script src="../js/phallanxpress.js"></script>
     
+    <!-- Models -->
+    <script src="../js/models/base_model.js"></script>
+    <script src="../js/models/category_model.js"></script>
+    <script src="../js/models/author_model.js"></script>
+    <script src="../js/models/page_model.js"></script>
+    <script src="../js/models/post_model.js"></script>
+    <script src="../js/models/tag_model.js"></script>
 
-    
-    <script src="../deploy/phallanxpress.js"></script>
+    <!-- Collections -->
+    <script src="../js/collections/base_collection.js"></script>
+    <script src="../js/collections/authors_collection.js"></script>
+    <script src="../js/collections/categories_collection.js"></script>
+    <script src="../js/collections/pages_collection.js"></script>
+    <script src="../js/collections/posts_collection.js"></script>
+    <script src="../js/collections/tags_collection.js"></script>
+
+    <!-- Try deploy version -->
+    <!-- <script src="../deploy/phallanxpress.js"></script> -->
+    <!-- <script src="../deploy/phallanxpress.min.js"></script> -->
 
     <script>
 

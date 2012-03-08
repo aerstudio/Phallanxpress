@@ -10,7 +10,7 @@ With this plugin you can:
 * Retrieve a page content.
 * Retrieve the list of pages for navigation proposals.
 * Retrieve the list of authors.
-* All data associated for the post: author, comments, tags, etc.
+* All data and metadata associated for the post: author, comments, tags, etc.
 
 ## Requisites
 
@@ -20,7 +20,7 @@ With this plugin you can:
 
 You must have the json-api plugin installed in your wordpress.
 
-To install it, just copy the folder `json-api` to you plugins folder. Usually in `wp-content` folder in your wordpress file structure.
+To install it, just copy the folder `json-api` to your `plugins` folder. Usually in `wp-content` folder in your wordpress file structure.
 
 You have to activate the plugin in your wordpress. Go to the plugins page and click on `activate`.
 
@@ -38,19 +38,36 @@ For example, to get all posts of type `portofolio_project` from custom taxonomy 
 The only dependency is the [backbone](https://github.com/documentcloud/backbone) library and its own dependency, the [underscore](https://github.com/documentcloud/underscore) library.
 
 
+
 ## Usage
+
+You have to include the `phallanxpress.js` or `phallanxpress.min.js` file included in the `deploy` folder. Please, always include this file after Backbone and Underscore libraries.
+	
+```html
+<body>
+...
+<script src="scripts/phallanxpress.js" type="text/javascript"></script>
+...
+</body>
+```
+
+
+### Initialize
 You can initialize the api just giving the url pointing to your wordpress json api. You can define this url in your json-api plugin settings page in your wordpress admin.
 
-	phallanx = new Phallanxpress.Api('http://www.mywordpress.com/api')
-
+```javascript
+phallanx = new Phallanxpress.Api('http://www.mywordpress.com/api')
+```
 
 ### Posts
 
 #### Recent posts: `recentPosts`
 Returns a `Phallanxpress.Posts` instance or a view object associated with the collection containing all recent posts ordered by date:
 
-	// Last 60 posts
-	phallanx.recentPosts({ view: App.Views.Collection });
+```javascript
+// Last 30 posts
+phallanx.recentPosts({ view: App.Views.Collection });
+```
 	
 If a `view` object is passed, it returns an instance of this object passing the collection as `collection` variable. 
 
@@ -59,8 +76,10 @@ If a `view` instance is passed in the `options` object, then the collection is a
 #### Search posts: `searchPosts`
 Returns a `Phallanxpress.Posts` instance or a view object associated with the collection containing all posts matched with a search criteria
 	
-	// Search all posts containing key 'javascript'
-	phallanx.searchPosts('javascript', {view: App.Views.Collection });
+```javascript
+// Search all posts containing key 'javascript'
+phallanx.searchPosts('javascript', {view: App.Views.Collection });
+```
 	
 If a `view` object is passed, it returns an instance of this object passing the collection as `collection` variable. 
 
@@ -69,8 +88,10 @@ If a `view` instance is passed in the `options` object, then the collection is a
 #### Date posts: `datePosts`
 Returns a `Phallanxpress.Posts` instance or a view object associated with the collection containing all posts published on a given date
 	
-	// Search all posts published on March, 7th 2012
-	phallanx.datePosts('2012-03-07', {view: App.Views.Collection });
+```javascript
+// Search all posts published on March, 7th 2012
+phallanx.datePosts('2012-03-07', {view: App.Views.Collection });
+```
 	
 If a `view` object is passed, it returns an instance of this object passing the collection as `collection` variable. 
 
@@ -80,8 +101,10 @@ If a `view` instance is passed in the `options` object, then the collection is a
 #### Single post: `post`
 Returns a `Phallanxpress.Post` instance or a view object associated with the model containing post given an `id` or a `slug`.
 	
-	// Retrieve a post with slug 'phallanxpress-library'
-	phallanx.post('phallanxpress-library', { view: App.Views.Post });
+```javascript
+// Retrieve a post with slug 'phallanxpress-library'
+phallanx.post('phallanxpress-library', { view: App.Views.Post });
+```
 	
 If a `view` object is passed, it returns an instance of this object passing the model as `model` variable. 
 
@@ -92,8 +115,10 @@ If a `view` instance is passed in the `options` object, then the model is assign
 #### Category list: `categoryList`
 Returns a `Phallanxpress.Categories` instance or a view object associated with the collection containing all the categories or all items for a given taxonomy.
 	
-	// Retrieve a list of all categories from taxonomy 'project_category'
-	phallanx.categoryList({ taxonomy: 'project_category', view: App.Views.Collection });
+```javascript
+// Retrieve a list of all categories from taxonomy 'project_category'
+phallanx.categoryList({ taxonomy: 'project_category', view: App.Views.Collection });
+```
 	
 If a `view` object is passed, it returns an instance of this object passing the collection as `collection` variable. 
 
@@ -101,9 +126,11 @@ If a `view` instance is passed in the `options` object, then the collection is a
 
 #### Category posts: `categoryPosts`
 Returns a `Phallanxpress.Posts` instance or a view object associated with the collection containing the posts from a given category `id` or category `slug`.
-	
-	// Posts from category with id 7
-	phallanx.categoryPosts(7, { view: App.Views.Collection });
+
+```javascript	
+// Posts from category with id 7
+phallanx.categoryPosts(7, { view: App.Views.Collection });
+```
 	
 If a `view` object is passed, it returns an instance of this object passing the collection as `collection` variable. 
 
@@ -113,8 +140,10 @@ If a `view` instance is passed in the `options` object, then the collection is a
 #### Page list: `pageList`
 Returns a `Phallanxpress.Categories` instance or a view object associated with the collection containing all the pages.
 	
-	// Search all posts published on March, 7th 2012
-	phallanx.pagesList({ view: App.Views.Collection });
+```javascript
+// Search all posts published on March, 7th 2012
+phallanx.pagesList({ view: App.Views.Collection });
+```
 	
 If a `view` object is passed, it returns an instance of this object passing the collection as `collection` variable. 
 
@@ -123,8 +152,10 @@ If a `view` instance is passed in the `options` object, then the collection is a
 #### Single page: `page`
 Returns a `Phallanxpress.Page` instance or a view object associated with the model containing a page with a given `id` or `slug`.
 	
-	// Retrieve a page with slug 'about-us'
-	phallanx.page('about-us', { view: App.Views.Page });
+```javascript
+// Retrieve a page with slug 'about-us'
+phallanx.page('about-us', { view: App.Views.Page });
+```
 	
 If a `view` object is passed, it returns an instance of this object passing the model as `model` variable. 
 
@@ -135,8 +166,10 @@ If a `view` instance is passed in the `options` object, then the model is assign
 #### Tag list: `tagList`
 Returns a `Phallanxpress.Tags` instance or a view object associated with the collection containing all the tags or all items for a given taxonomy.
 	
-	// Retrieve a list of all tags
-	phallanx.tagList({ view: App.Views.Collection });
+```javascript
+// Retrieve a list of all tags
+phallanx.tagList({ view: App.Views.Collection });
+```
 	
 If a `view` object is passed, it returns an instance of this object passing the collection as `collection` variable. 
 
@@ -145,8 +178,10 @@ If a `view` instance is passed in the `options` object, then the collection is a
 #### Tag posts: `tagPosts`
 Returns a `Phallanxpress.Posts` instance or a view object associated with the collection containing the posts from a given category `id` or category `slug`.
 	
-	// Posts from tag with slug 'backbone'
-	phallanx.tagPosts('backbone', { view: App.Views.Collection });
+```javascript
+// Posts from tag with slug 'backbone'
+phallanx.tagPosts('backbone', { view: App.Views.Collection });
+```
 	
 If a `view` object is passed, it returns an instance of this object passing the collection as `collection` variable. 
 
@@ -156,8 +191,10 @@ If a `view` instance is passed in the `options` object, then the collection is a
 #### Author list: `authorList`
 Returns a `Phallanxpress.Authors` instance or a view object associated with the collection containing all the tags or all items for a given taxonomy.
 	
-	// Retrieve a list of all authors
-	phallanx.authorList({ view: App.Views.Collection });
+```javascript
+// Retrieve a list of all authors
+phallanx.authorList({ view: App.Views.Collection });
+```
 	
 If a `view` object is passed, it returns an instance of this object passing the collection as `collection` variable. 
 
@@ -166,8 +203,10 @@ If a `view` instance is passed in the `options` object, then the collection is a
 #### Author posts: `authorPosts`
 Returns a `Phallanxpress.Posts` instance or a view object associated with the collection containing the posts from a given author.
 	
-	// Posts from author with id 1
-	phallanx.authorPosts(1, { view: App.Views.Collection });
+```javascript
+// Posts from author with id 1
+phallanx.authorPosts(1, { view: App.Views.Collection });
+```
 	
 If a `view` object is passed, it returns an instance of this object passing the collection as `collection` variable. 
 
@@ -198,27 +237,32 @@ Implements the methods `recentPosts`, `searchPosts`, `datePosts`, `categoryPosts
 
 Implements a pagination:
 
-	posts = new Phallanxpress.Posts();
-	posts.recentPosts()
-	posts.on('reset', function(){
-		posts.page; // Current page
-		posts.pages; // Total number of pages
-		posts.count; // Number of posts per page
-		posts.pageUp(); // Get the next page
-		posts.pageDown(); // Get the previous page
-		posts.page(3, options); // Go to page 3
-	})
+```javascript
+posts = new Phallanxpress.Posts();
+posts.recentPosts()
+posts.on('reset', function(){
+	posts.page; // Current page
+	posts.pages; // Total number of pages
+	posts.count; // Number of posts per page
+	posts.pageUp(); // Get the next page
+	posts.pageDown(); // Get the previous page
+	posts.page(3, options); // Go to page 3
+})
+```
 
 You can always pass an object with different options and this will be passed to the `fetch` method. For example, to make and infinite scroll:
 
-	posts.pageUp({add: true}); 
+```javascript
+posts.pageUp({add: true}); 
+```
 
 This will add the new results to the previous results and a `add` event will be triggered.
 
 If the passed contains a `params` object this will be the parametes for the api query. For example, to get the custom fields of the posts:
 
-	posts.pageUp({ params: { custom_fields: 'city, street' } });
-
+```javascript
+posts.pageUp({ params: { custom_fields: 'city, street' } });
+```
 ###### Events
 If no results are found it triggers a `no posts` event.
 
@@ -244,24 +288,62 @@ If you want to make your own model please extend from this object. Set the `apiC
 
 
 
-## To do
-This is the list we miss but not for much longer, (hopefully)
+## To do whislist
+These are the next steps in development (in not specific order):
 
-* Unit tests
-* Create posts
-* Create categories
-* Create tags
+* Make it work with creation controller of plugin.
+* Use a cache with localStorage through `Api` object.
+
+## Changelog
+
+### 0.1.0
+Initial release of phallanxpress.js
+
+
 
 ## How to contribute
 
 ### Forking the project
 You can fork the repository, make your contribution to the code and asking for a merge request.
 
+#### Develop
+All source files are in the folder `src`. Coffeescript is used and a classical class structure is followed.
+You can run 
+	
+```javascript
+cake watch
+```
+
+And your coffee files will be automatically compiled to `deploy` folder everytime they change.
+
+If you add some files to the library, you should add it to the `output` array in the `Cakefile` file. The order must be considered.
+
+
+#### Build
+To build the library you have to run the next command:
+
+```javascript
+cake build
+```
+	
+This will create to files in the `deploy` folder: `phallanxpress.js`, the all-in-one-file development library; and `phallaxpress.min.js`, the minified and compressed version of the library.
+
+#### Tests
+The [Jasmine](http://pivotal.github.com/jasmine/) suite is used for running spec tests for BDD.
+
+To run the tests, just drag and drop the file `index.html` in the `tests` folder to your browser.
+
+The tests and specs are in the `specs` folder.
+
+For more info about how to use Jasmine, please go to the [Jasmine wiki](https://github.com/pivotal/jasmine/wiki).
+
 ### Issues and feature requests
-Open an issue if you find a bug or if you miss something you want to be implemented.
+Open an [issue](https://github.com/aerstudio/Phallanxpress/issues) if you find a bug or if you miss something you want to be implemented or any suggestion you want to make.
 
 ### Showing your work
 If you develop something using this library, please let us know so we can make a showcase.
+
+Send us the url of your work with some info about it to: [info@aerstudio.com](mailto:info@aerstudio.com).
 
 Anyway, thanks!
 
