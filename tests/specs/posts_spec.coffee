@@ -47,6 +47,16 @@ describe "Phallanxpress posts collection", ->
       posts.toPage(4)
       expect(mostRecentAjaxRequest().url).toEqual("#{api.url}get_recent_posts/?count=32&page=4&post_type=type&taxonomy=cat")    
 
+    it "adds the next page to current results", ->
+      posts = api.recentPosts()
+      request = mostRecentAjaxRequest()
+      request.response TestResponses.posts.success
+      posts.pageUp(add: true)
+      request = mostRecentAjaxRequest()
+      request.response TestResponses.posts.page2
+      expect(posts.length).toEqual(7)        
+
+
   describe 'Fetching posts', ->
     posts = null
 
@@ -71,6 +81,25 @@ describe "Phallanxpress posts collection", ->
     it 'gets a post by slug', ->
       expect(posts.getBySlug('test-slug')).toBeDefined()
 
+    it 'associated with a view if passed the object', ->
+      render = jasmine.createSpy('render')
+      View = Backbone.View.extend(
+        initialize: ->
+          this.render = render
+          this.collection.on('reset', this.render, this)
+          
+      )
+      v = api.recentPosts( view: View )
+      
+      expect(render).toHaveBeenCalled()
+
+    it 'associated with a view if passed an instance', ->
+      render = jasmine.createSpy('render')
+      view = new Backbone.View
+      view.render = render
+      v = api.recentPosts( view: view )
+      
+      expect(render).toHaveBeenCalled()
 
   describe 'Fetching methods', ->
 

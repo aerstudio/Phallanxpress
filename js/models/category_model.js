@@ -17,15 +17,6 @@
         return model.get('parent') === this.id;
       }, this));
     };
-    Category.prototype.posts = function(options) {
-      var posts;
-      posts = new Phallanxpress.Posts;
-      posts.apiUrl = this.apiUrl;
-      posts.categoryPosts({
-        id: this.id
-      }, options);
-      return posts;
-    };
     return Category;
   })();
 }).call(this);

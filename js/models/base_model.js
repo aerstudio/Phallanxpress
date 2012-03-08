@@ -14,7 +14,6 @@
     }
     Model.prototype.url = function() {
       var url;
-      console.log(this.apiCommand);
       if (this.apiUrl == null) {
         throw new Error('An api URL must be defined');
       }

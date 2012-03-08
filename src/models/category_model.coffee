@@ -17,11 +17,6 @@ class Phallanxpress.Category extends Phallanxpress.Model
       model.get('parent') is @id
     )
 
-  posts: (options)->
-    posts = new Phallanxpress.Posts
-    posts.apiUrl = @apiUrl
-    posts.categoryPosts( id: @id, options)
-    posts
 
 
 

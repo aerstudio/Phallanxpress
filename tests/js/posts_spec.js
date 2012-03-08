@@ -60,7 +60,7 @@
         posts.pageDown();
         return expect(mostRecentAjaxRequest().url).toEqual("" + api.url + "get_recent_posts/?count=32&page=1&taxonomy=cat");
       });
-      return it("gets a given page", function() {
+      it("gets a given page", function() {
         var posts;
         posts = api.recentPosts({
           taxonomy: 'cat',
@@ -69,6 +69,18 @@
         });
         posts.toPage(4);
         return expect(mostRecentAjaxRequest().url).toEqual("" + api.url + "get_recent_posts/?count=32&page=4&post_type=type&taxonomy=cat");
+      });
+      return it("adds the next page to current results", function() {
+        var posts;
+        posts = api.recentPosts();
+        request = mostRecentAjaxRequest();
+        request.response(TestResponses.posts.success);
+        posts.pageUp({
+          add: true
+        });
+        request = mostRecentAjaxRequest();
+        request.response(TestResponses.posts.page2);
+        return expect(posts.length).toEqual(7);
       });
     });
     describe('Fetching posts', function() {
@@ -92,8 +104,32 @@
         posts.pageUp();
         return expect(posts.page).toEqual(2);
       });
-      return it('gets a post by slug', function() {
+      it('gets a post by slug', function() {
         return expect(posts.getBySlug('test-slug')).toBeDefined();
+      });
+      it('associated with a view if passed the object', function() {
+        var View, render, v;
+        render = jasmine.createSpy('render');
+        View = Backbone.View.extend({
+          initialize: function() {
+            this.render = render;
+            return this.collection.on('reset', this.render, this);
+          }
+        });
+        v = api.recentPosts({
+          view: View
+        });
+        return expect(render).toHaveBeenCalled();
+      });
+      return it('associated with a view if passed an instance', function() {
+        var render, v, view;
+        render = jasmine.createSpy('render');
+        view = new Backbone.View;
+        view.render = render;
+        v = api.recentPosts({
+          view: view
+        });
+        return expect(render).toHaveBeenCalled();
       });
     });
     return describe('Fetching methods', function() {

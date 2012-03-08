@@ -14,7 +14,6 @@ class Phallanxpress.Model extends Backbone.Model
 
 
   url: ->
-    console.log @apiCommand
     throw new Error('An api URL must be defined') unless @apiUrl?
     throw new Error('An api command must be defined') unless @apiCommand?
 

@@ -53,7 +53,7 @@ class Phallanxpress.Collection extends Backbone.Collection
     delete @options.success
     unless options.add
       do @reset 
-
+    
     @fetch(options)
 
     this
