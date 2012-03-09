@@ -4,7 +4,7 @@
     api = request = null;
     beforeEach(function() {
       jasmine.Ajax.useMock();
-      return api = new Phallanxpress.Api('http://aerstudio.com');
+      return api = new Phallanxpress.Api('http://cached.com');
     });
     describe("Enable / Disable", function() {
       var numRequests, posts;
@@ -157,7 +157,7 @@
         });
       });
     });
-    return describe("Models", function() {
+    describe("Models", function() {
       var post;
       post = null;
       beforeEach(function() {
@@ -203,6 +203,45 @@
           expect(ajaxRequests.length).toEqual(numRequests + 1);
           return expect(mostRecentAjaxRequest().url).toEqual(url);
         });
+      });
+    });
+    return describe('Cleaning', function() {
+      it('cleans all expired calls', function() {
+        var objects;
+        objects = api.cache.objects;
+        api.recentPosts({
+          forceRequest: true,
+          params: {
+            custom_fields: 'g5,gh,gp'
+          }
+        });
+        request = mostRecentAjaxRequest();
+        request.response(TestResponses.posts.success);
+        api.cache.expireTime = 1 / 3600000 * 100;
+        api.cache.cleanStorage();
+        expect(api.cache.objects.length).not.toEqual(objects.length);
+        expect(api.cache.objects.length).toBeGreaterThan(0);
+        return expect(_.include(api.cache.objects, request.url)).toBeTruthy();
+      });
+      return it('forces a clean of all cache', function() {
+        var obj, objects;
+        api.recentPosts({
+          forceRequest: true,
+          params: {
+            custom_fields: 'g5,gh,g98'
+          }
+        });
+        objects = api.cache.objects;
+        api.cache.expireTime = 24;
+        api.cache.cleanStorage(true);
+        expect(api.cache.objects.length).toEqual(0);
+        _.each(objects, function(id) {
+          var obj;
+          obj = api.cache.storage.getItem(id);
+          return expect(obj).toBeNull();
+        });
+        obj = api.cache.storage.getItem(api.url);
+        return expect(obj).toBeNull();
       });
     });
   });

@@ -13,7 +13,7 @@ config =
 output =
 	'phallanxpress': [
 		'base'
-		'local_storage'
+		'cache'
 		'phallanxpress'
 		'models/base_model'
 		'models/tag_model'

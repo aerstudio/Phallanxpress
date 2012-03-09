@@ -1,14 +1,16 @@
 
-class Phallanxpress.Storage 
+class Phallanxpress.Cache 
 
   expireTime: 24 # Expiring time in hours
 
-  constructor: (@name, session = false)->
-    do @enable session
+  constructor: (@name)->
+    _.extend(this, Backbone.Events)
+    do @enable 
+    @objects = (JSON.parse @storage.getItem @name) || []
 
-  enable: (session = false) ->
+  enable: (options = {}) ->
     return if not window? and not window.localStorage and not window.sessionStorage
-    if session
+    if options.sessionStorage
       @storage = window.sessionStorage
     else
       @storage = window.localStorage
@@ -24,23 +26,31 @@ class Phallanxpress.Storage
       timestamp: new Date().getTime()
     try 
       @storage.setItem collection.url, JSON.stringify(col)
+      collection.each( (model)=>
+        @saveModel model
+      )
+      @saveId collection.url
     catch error
       if error is QUOTA_EXCEEDED_ERR
+        do @cleanStorage
+        @trigger('quota exceeded')
         return 
       else
         throw error
-    collection.each( (model)=>
-      @saveModel model
-    )
+   
     
   saveModel:(model)->
     return unless @storage?
     now = new Date()
     model.set phallanxTimestamp: now.getTime(), silent: true
     try 
-      @storage.setItem @name+model.constructor.name.toLowerCase()+'/'+model.id, JSON.stringify(model)
+      id = @name+model.constructor.name.toLowerCase()+'/'+model.id
+      @storage.setItem id, JSON.stringify(model)
+      @saveId id
     catch error
       if error is QUOTA_EXCEEDED_ERR
+        do @cleanStorage
+        @trigger('quota exceeded')
         return 
       else
         throw error
@@ -61,7 +71,6 @@ class Phallanxpress.Storage
           collection.reset models, silent: true
         true
       else
-        @destroyCollection collection
         false
     else
       false
@@ -82,13 +91,30 @@ class Phallanxpress.Storage
       false
 
   getModelAttributes: (id, modelName)->
+    return null unless @storage?
     JSON.parse @storage.getItem @name+modelName.toLowerCase()+'/'+id
 
-  destroyCollection: (collection)->
+  saveId: (id)->
     return unless @storage?
-    @storage.removeItem collection.url
+    unless _.include(@objects, id)
+      @objects.push(id)
+      @storage.setItem @name, JSON.stringify @objects
 
-
-
+  cleanStorage: (forceCleanAll = false)->
+    removedIds = []
+    _.each(@objects, (id)=>
+      data = JSON.parse @storage.getItem id
+      elapsedTime = new Date().getTime() - (data.timestamp || data.phallanxTimestamp)
+      if elapsedTime > @expireTime * 3600000 or forceCleanAll
+        @storage.removeItem id
+        removedIds.push id
+    )
+    @objects =_.difference(@objects, removedIds)
+    if @objects.length > 0
+      @storage.setItem @name, JSON.stringify @objects    
+    else
+      @storage.removeItem @name
+    
+    
 
 

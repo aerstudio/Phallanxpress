@@ -16,7 +16,7 @@ class Phallanxpress.Api
 
       $('head').append dnsprefetch if linkTags.length is 0
 
-    @cache = new Phallanxpress.Storage(@url)
+    @cache = new Phallanxpress.Cache @url
 
   recentPosts: (options)->
     options ||= {}

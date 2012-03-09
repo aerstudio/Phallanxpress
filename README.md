@@ -61,22 +61,25 @@ phallanx = new Phallanxpress.Api('http://www.mywordpress.com/api')
 ```
 
 ### Cache
-Phallanxpress uses the [localStorage](http://dev.w3.org/html5/webstorage/#the-localstorage-attribute) attribute to save cache data to minimize loading times.
+Phallanxpress uses the [localStorage](http://dev.w3.org/html5/webstorage/#the-localstorage-attribute) attribute to save cache data by default. You can use also `sessionStorage`
 
 You can enable or disable it with the next methods:
 
 ```javascript
-phallanx.cache.enable();
+phallanx.cache.enable(); // Enables localStorage for cache
+phallanx.cache.enable({sessionStorage: true}) // Enables sessionStorage for cache
 phallanx.cache.disable();
 ```
 
-It is always enable by default if supported by the browser.
+Cache is always enabled by default with `localStorage`, if it is supported by the browser.
 
 You can control the expire time for each call with variable `expireTime`. 
 
 ```javascript
-phallanx.cache.expireTime = 24 // Time for the cache to expire (in hours)
+phallanx.cache.expireTime = 2 // Time for the cache to expire (in hours)
 ```
+Default expire time is 24 hours
+
 
 You can force the request when make a query passing the variable `forceRequest` in every query and skip the cache, for example to get new comments.
 

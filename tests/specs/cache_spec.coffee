@@ -4,7 +4,7 @@ describe 'Phallanxpress storage', ->
 
   beforeEach ->
     jasmine.Ajax.useMock()
-    api = new Phallanxpress.Api('http://aerstudio.com')
+    api = new Phallanxpress.Api('http://cached.com')
 
 
   describe "Enable / Disable", ->
@@ -150,6 +150,38 @@ describe 'Phallanxpress storage', ->
         post = api.post(1318)
         expect(ajaxRequests.length).toEqual numRequests + 1
         expect(mostRecentAjaxRequest().url).toEqual url
+
+  describe 'Cleaning', ->
+
+    it 'cleans all expired calls', ->
+      objects = api.cache.objects
+      api.recentPosts(forceRequest: true, params: { custom_fields: 'g5,gh,gp'})
+      request = mostRecentAjaxRequest()
+      request.response TestResponses.posts.success
+      api.cache.expireTime = 1 / 3600000 * 100
+      api.cache.cleanStorage()
+
+      expect(api.cache.objects.length).not.toEqual objects.length
+      expect(api.cache.objects.length).toBeGreaterThan 0
+      expect(_.include(api.cache.objects, request.url)).toBeTruthy()
+
+
+    it 'forces a clean of all cache', ->
+      api.recentPosts(forceRequest: true, params: { custom_fields: 'g5,gh,g98'})
+      objects = api.cache.objects
+      api.cache.expireTime = 24
+      api.cache.cleanStorage(true)
+      expect(api.cache.objects.length).toEqual 0
+      _.each(objects, (id)->
+        obj = api.cache.storage.getItem id
+        expect(obj).toBeNull()
+      )
+      obj = api.cache.storage.getItem api.url
+      expect(obj).toBeNull()
+      
+
+
+
 
 
 
