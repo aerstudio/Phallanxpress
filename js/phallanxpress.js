@@ -199,38 +199,37 @@
     };
     Api.prototype._bindView = function(obj, view) {
       var v;
-      if (view != null) {
-        if (view instanceof Backbone.View) {
-          v = view;
-          if (obj instanceof Backbone.Collection) {
-            v.obj = obj;
-            if (_.isFunction(v.render)) {
-              obj.on('reset', v.render, v);
-              obj.on('add', v.render, v);
-            }
-          } else {
-            v.model = obj;
-            if (_.isFunction(v.render)) {
-              obj.on('change', v.render, v);
-            }
-          }
-        } else if (_.isFunction(view)) {
-          if (obj instanceof Backbone.Collection) {
-            v = new view({
-              collection: obj
-            });
-          } else {
-            v = new view({
-              model: obj
-            });
+      if (view == null) {
+        return null;
+      }
+      if (view instanceof Backbone.View) {
+        v = view;
+        if (obj instanceof Backbone.Collection) {
+          v.obj = obj;
+          if (_.isFunction(v.render)) {
+            obj.on('reset', v.render, v);
+            obj.on('add', v.render, v);
           }
         } else {
-          return null;
+          v.model = obj;
+          if (_.isFunction(v.render)) {
+            obj.on('change', v.render, v);
+          }
         }
-        return v;
+      } else if (_.isFunction(view)) {
+        if (obj instanceof Backbone.Collection) {
+          v = new view({
+            collection: obj
+          });
+        } else {
+          v = new view({
+            model: obj
+          });
+        }
       } else {
         return null;
       }
+      return v;
     };
     return Api;
   })();

@@ -19,23 +19,29 @@ class Phallanxpress.Posts extends Phallanxpress.Collection
   defaultCount: 32
 
   recentPosts: (options)->
+    do @resetVars
     @_wpAPI('get_recent_posts', @_pageOptions(null, options))
 
   categoryPosts: (id, options)->
+    do @resetVars
     @_wpAPI('get_category_posts', @_pageOptions(id, options))
 
   authorPosts: (id, options)->
+    do @resetVars
     @_wpAPI('get_author_posts', @_pageOptions(id, options))
 
   tagPosts: (id, options)->
+    do @resetVars
     @_wpAPI('get_tag_posts', @_pageOptions(id, options))
 
   searchPosts: (query, options)->
+    do @resetVars
     options = @_pageOptions(null, options)
     options.params.search = query
     @_wpAPI('get_search_results', options)
 
   datePosts: (date, options)->
+    do @resetVars
     options = @_pageOptions(null, options)
     options.params.date = date
     @_wpAPI('get_date_posts', options)

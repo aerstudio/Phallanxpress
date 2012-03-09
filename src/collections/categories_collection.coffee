@@ -23,6 +23,11 @@ class Phallanxpress.Categories extends Phallanxpress.Collection
     top = @filter( (model)->
       model.get('parent') is 0
     )
-    new Phallanxpress.Categories(top)
+    tops = new Phallanxpress.Categories(top)
+    tops.api = @api
+    tops.apiUrl = @apiUrl
+    tops
+
+
 
 

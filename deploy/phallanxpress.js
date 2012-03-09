@@ -62,9 +62,15 @@
       }
       col = {
         ids: collection.pluck('id'),
-        timestamp: new Date().getTime()
+        timestamp: new Date().getTime(),
+        count: collection.count,
+        count_total: collection.count_total,
+        pages: collection.pages,
+        page: collection.page,
+        options: collection.options
       };
       try {
+        this.storage.removeItem(collection.url);
         this.storage.setItem(collection.url, JSON.stringify(col));
         collection.each(__bind(function(model) {
           return this.saveModel(model);
@@ -91,6 +97,7 @@
       });
       try {
         id = this.name + model.constructor.name.toLowerCase() + '/' + model.id;
+        this.storage.removeItem(id);
         this.storage.setItem(id, JSON.stringify(model));
         return this.saveId(id);
       } catch (error) {
@@ -102,8 +109,11 @@
         }
       }
     };
-    Cache.prototype.getCollection = function(collection) {
+    Cache.prototype.getCollection = function(collection, options) {
       var col, elapsedTime, modelName, models;
+      if (options == null) {
+        options = {};
+      }
       if (this.storage == null) {
         return false;
       }
@@ -116,14 +126,15 @@
             var attributes;
             return attributes = this.getModelAttributes(id, modelName);
           }, this));
-          if (collection.options.add) {
-            collection.add(models, {
-              silent: true
-            });
+          collection.count = col.count;
+          collection.count_total = col.count_total;
+          collection.page = col.page;
+          collection.pages = col.pages;
+          collection.options = col.options;
+          if (options.add) {
+            collection.add(models, options);
           } else {
-            collection.reset(models, {
-              silent: true
-            });
+            collection.reset(models, options);
           }
           return true;
         } else {
@@ -394,38 +405,37 @@
     };
     Api.prototype._bindView = function(obj, view) {
       var v;
-      if (view != null) {
-        if (view instanceof Backbone.View) {
-          v = view;
-          if (obj instanceof Backbone.Collection) {
-            v.obj = obj;
-            if (_.isFunction(v.render)) {
-              obj.on('reset', v.render, v);
-              obj.on('add', v.render, v);
-            }
-          } else {
-            v.model = obj;
-            if (_.isFunction(v.render)) {
-              obj.on('change', v.render, v);
-            }
-          }
-        } else if (_.isFunction(view)) {
-          if (obj instanceof Backbone.Collection) {
-            v = new view({
-              collection: obj
-            });
-          } else {
-            v = new view({
-              model: obj
-            });
+      if (view == null) {
+        return null;
+      }
+      if (view instanceof Backbone.View) {
+        v = view;
+        if (obj instanceof Backbone.Collection) {
+          v.obj = obj;
+          if (_.isFunction(v.render)) {
+            obj.on('reset', v.render, v);
+            obj.on('add', v.render, v);
           }
         } else {
-          return null;
+          v.model = obj;
+          if (_.isFunction(v.render)) {
+            obj.on('change', v.render, v);
+          }
         }
-        return v;
+      } else if (_.isFunction(view)) {
+        if (obj instanceof Backbone.Collection) {
+          v = new view({
+            collection: obj
+          });
+        } else {
+          v = new view({
+            model: obj
+          });
+        }
       } else {
         return null;
       }
+      return v;
     };
     return Api;
   })();
@@ -597,7 +607,7 @@
       fetched = false;
       forced = options.forceRequest || false;
       if ((this.api != null) && !forced) {
-        fetched = this.api.cache.getCollection(this);
+        fetched = this.api.cache.getCollection(this, options);
       }
       if (!fetched) {
         if (!options.add) {
@@ -605,13 +615,7 @@
         }
         this.fetch(options);
       } else {
-        if (!options.silent) {
-          if (options.add) {
-            this.trigger('add', this, options);
-          } else {
-            this.trigger('reset', this, options);
-          }
-        }
+        this.isLoading = false;
         if (success != null) {
           success(this, null);
         }
@@ -619,7 +623,7 @@
       return this;
     };
     Collection.prototype.resetVars = function() {
-      return this.page = this.pages = this.count = this.count_total = null;
+      return this.page = this.pages = this.count = this.count_total = this.options = this.currentCommand = this.currentParams = this.apiObject = null;
     };
     Collection.prototype.parse = function(resp, xhr) {
       if (resp.status === 'ok') {
@@ -642,11 +646,14 @@
       return this._wpAPI('get_category_index', options);
     };
     Categories.prototype.topCategories = function() {
-      var top;
+      var top, tops;
       top = this.filter(function(model) {
         return model.get('parent') === 0;
       });
-      return new Phallanxpress.Categories(top);
+      tops = new Phallanxpress.Categories(top);
+      tops.api = this.api;
+      tops.apiUrl = this.apiUrl;
+      return tops;
     };
     return Categories;
   })();
@@ -671,23 +678,29 @@
     Posts.prototype.parseTag = 'posts';
     Posts.prototype.defaultCount = 32;
     Posts.prototype.recentPosts = function(options) {
+      this.resetVars();
       return this._wpAPI('get_recent_posts', this._pageOptions(null, options));
     };
     Posts.prototype.categoryPosts = function(id, options) {
+      this.resetVars();
       return this._wpAPI('get_category_posts', this._pageOptions(id, options));
     };
     Posts.prototype.authorPosts = function(id, options) {
+      this.resetVars();
       return this._wpAPI('get_author_posts', this._pageOptions(id, options));
     };
     Posts.prototype.tagPosts = function(id, options) {
+      this.resetVars();
       return this._wpAPI('get_tag_posts', this._pageOptions(id, options));
     };
     Posts.prototype.searchPosts = function(query, options) {
+      this.resetVars();
       options = this._pageOptions(null, options);
       options.params.search = query;
       return this._wpAPI('get_search_results', options);
     };
     Posts.prototype.datePosts = function(date, options) {
+      this.resetVars();
       options = this._pageOptions(null, options);
       options.params.date = date;
       return this._wpAPI('get_date_posts', options);

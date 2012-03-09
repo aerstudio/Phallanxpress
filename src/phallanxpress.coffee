@@ -166,25 +166,25 @@ class Phallanxpress.Api
       posts
 
   _bindView:(obj, view)->
-    if view? 
-      if view instanceof Backbone.View
-        v = view
-        if obj instanceof Backbone.Collection
-          v.obj = obj
-          if _.isFunction v.render
-            obj.on('reset', v.render, v)
-            obj.on('add', v.render, v)
-        else
-          v.model = obj
-          if _.isFunction v.render
-            obj.on('change', v.render, v)
-      else if _.isFunction view
-        if obj instanceof Backbone.Collection
-          v = new view collection: obj
-        else
-          v = new view model: obj
+    return null unless view?
+    
+    if view instanceof Backbone.View
+      v = view
+      if obj instanceof Backbone.Collection
+        v.obj = obj
+        if _.isFunction v.render
+          obj.on('reset', v.render, v)
+          obj.on('add', v.render, v)
       else
-        return null
-      v
+        v.model = obj
+        if _.isFunction v.render
+          obj.on('change', v.render, v)
+    else if _.isFunction view
+      if obj instanceof Backbone.Collection
+        v = new view collection: obj
+      else
+        v = new view model: obj
     else
-      null
+      return null
+    v
+    

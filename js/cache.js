@@ -31,9 +31,15 @@
       }
       col = {
         ids: collection.pluck('id'),
-        timestamp: new Date().getTime()
+        timestamp: new Date().getTime(),
+        count: collection.count,
+        count_total: collection.count_total,
+        pages: collection.pages,
+        page: collection.page,
+        options: collection.options
       };
       try {
+        this.storage.removeItem(collection.url);
         this.storage.setItem(collection.url, JSON.stringify(col));
         collection.each(__bind(function(model) {
           return this.saveModel(model);
@@ -60,6 +66,7 @@
       });
       try {
         id = this.name + model.constructor.name.toLowerCase() + '/' + model.id;
+        this.storage.removeItem(id);
         this.storage.setItem(id, JSON.stringify(model));
         return this.saveId(id);
       } catch (error) {
@@ -71,8 +78,11 @@
         }
       }
     };
-    Cache.prototype.getCollection = function(collection) {
+    Cache.prototype.getCollection = function(collection, options) {
       var col, elapsedTime, modelName, models;
+      if (options == null) {
+        options = {};
+      }
       if (this.storage == null) {
         return false;
       }
@@ -85,14 +95,15 @@
             var attributes;
             return attributes = this.getModelAttributes(id, modelName);
           }, this));
-          if (collection.options.add) {
-            collection.add(models, {
-              silent: true
-            });
+          collection.count = col.count;
+          collection.count_total = col.count_total;
+          collection.page = col.page;
+          collection.pages = col.pages;
+          collection.options = col.options;
+          if (options.add) {
+            collection.add(models, options);
           } else {
-            collection.reset(models, {
-              silent: true
-            });
+            collection.reset(models, options);
           }
           return true;
         } else {

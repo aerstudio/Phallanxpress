@@ -18,11 +18,14 @@
       return this._wpAPI('get_category_index', options);
     };
     Categories.prototype.topCategories = function() {
-      var top;
+      var top, tops;
       top = this.filter(function(model) {
         return model.get('parent') === 0;
       });
-      return new Phallanxpress.Categories(top);
+      tops = new Phallanxpress.Categories(top);
+      tops.api = this.api;
+      tops.apiUrl = this.apiUrl;
+      return tops;
     };
     return Categories;
   })();

@@ -24,7 +24,13 @@ class Phallanxpress.Cache
     col =
       ids: collection.pluck 'id'
       timestamp: new Date().getTime()
+      count: collection.count
+      count_total: collection.count_total
+      pages: collection.pages
+      page: collection.page
+      options: collection.options
     try 
+      @storage.removeItem collection.url
       @storage.setItem collection.url, JSON.stringify(col)
       collection.each( (model)=>
         @saveModel model
@@ -45,6 +51,7 @@ class Phallanxpress.Cache
     model.set phallanxTimestamp: now.getTime(), silent: true
     try 
       id = @name+model.constructor.name.toLowerCase()+'/'+model.id
+      @storage.removeItem id
       @storage.setItem id, JSON.stringify(model)
       @saveId id
     catch error
@@ -55,7 +62,7 @@ class Phallanxpress.Cache
       else
         throw error
 
-  getCollection: (collection) ->
+  getCollection: (collection, options = {}) ->
     return false unless @storage?
     col = JSON.parse @storage.getItem collection.url
     if col? 
@@ -65,10 +72,18 @@ class Phallanxpress.Cache
         models = _.map(col.ids, (id)=>
           attributes = @getModelAttributes id, modelName
         )
-        if collection.options.add
-          collection.add models, silent: true
+
+        collection.count = col.count
+        collection.count_total = col.count_total
+        collection.page = col.page
+        collection.pages = col.pages
+        collection.options = col.options
+
+        if options.add
+          collection.add models, options
         else
-          collection.reset models, silent: true
+          collection.reset models, options
+        
         true
       else
         false

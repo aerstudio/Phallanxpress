@@ -71,7 +71,7 @@
       fetched = false;
       forced = options.forceRequest || false;
       if ((this.api != null) && !forced) {
-        fetched = this.api.cache.getCollection(this);
+        fetched = this.api.cache.getCollection(this, options);
       }
       if (!fetched) {
         if (!options.add) {
@@ -79,13 +79,7 @@
         }
         this.fetch(options);
       } else {
-        if (!options.silent) {
-          if (options.add) {
-            this.trigger('add', this, options);
-          } else {
-            this.trigger('reset', this, options);
-          }
-        }
+        this.isLoading = false;
         if (success != null) {
           success(this, null);
         }
@@ -93,7 +87,7 @@
       return this;
     };
     Collection.prototype.resetVars = function() {
-      return this.page = this.pages = this.count = this.count_total = null;
+      return this.page = this.pages = this.count = this.count_total = this.options = this.currentCommand = this.currentParams = this.apiObject = null;
     };
     Collection.prototype.parse = function(resp, xhr) {
       if (resp.status === 'ok') {

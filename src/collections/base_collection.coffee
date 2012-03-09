@@ -55,26 +55,21 @@ class Phallanxpress.Collection extends Backbone.Collection
     fetched = false
     forced = options.forceRequest || false
     if @api? and not forced  
-      fetched = @api.cache.getCollection this
+      fetched = @api.cache.getCollection this, options
 
     if not fetched
       unless options.add
         do @reset 
       @fetch options 
     else
-
-      if not options.silent
-        if options.add
-          @trigger('add', this, options)
-        else
-          @trigger('reset', this, options)
-
+      @isLoading = false
       success this, null if success?
 
     this
 
   resetVars: ->
-    @page = @pages = @count = @count_total = null
+    @page = @pages = @count = @count_total = @options = @currentCommand = @currentParams = @apiObject = null
+    
     
 
   parse: (resp, xhr)->

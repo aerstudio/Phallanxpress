@@ -16,23 +16,29 @@
     Posts.prototype.parseTag = 'posts';
     Posts.prototype.defaultCount = 32;
     Posts.prototype.recentPosts = function(options) {
+      this.resetVars();
       return this._wpAPI('get_recent_posts', this._pageOptions(null, options));
     };
     Posts.prototype.categoryPosts = function(id, options) {
+      this.resetVars();
       return this._wpAPI('get_category_posts', this._pageOptions(id, options));
     };
     Posts.prototype.authorPosts = function(id, options) {
+      this.resetVars();
       return this._wpAPI('get_author_posts', this._pageOptions(id, options));
     };
     Posts.prototype.tagPosts = function(id, options) {
+      this.resetVars();
       return this._wpAPI('get_tag_posts', this._pageOptions(id, options));
     };
     Posts.prototype.searchPosts = function(query, options) {
+      this.resetVars();
       options = this._pageOptions(null, options);
       options.params.search = query;
       return this._wpAPI('get_search_results', options);
     };
     Posts.prototype.datePosts = function(date, options) {
+      this.resetVars();
       options = this._pageOptions(null, options);
       options.params.date = date;
       return this._wpAPI('get_date_posts', options);
