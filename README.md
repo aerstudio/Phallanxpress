@@ -87,6 +87,27 @@ You can force the request when make a query passing the variable `forceRequest` 
 phallanx.recentPosts({ forceRequest: true })
 ```
 
+You can force a cleaning to remove all expired items with the method
+
+```javascript
+// Cleans all expired items according to current expire time
+phallanx.cache.cleanStorage()
+```
+
+Or you can force to remove **all** items stored, even if they are not expired
+
+```javascript
+// Cleans all items, expired or not
+phallanx.cache.cleanStorage(true)
+```
+
+If the quota is exceeded, it will automatically clean all expired calls and it will trigger a `quota exceeded` event.
+
+```javascript
+api.cache.on('quota exceeded', function(){
+	alert("Quota has been exceeded");
+});
+```
 
 ### Posts
 
