@@ -1,7 +1,7 @@
 # Phalanxpress: Backbone API for Wordpress
-**Phalanxpress** allows you to create a backbone app using [Wordpress](http://www.wordpress.org) as back end. So you can easily create a single page wordpress.
+**Phalanxpress** allows you to create a backbone app using [Wordpress](http://www.wordpress.org) as a back end. So you can easily create a single page wordpress.
 
-It provides a complete set of collections and models that automatically connects to your wordpress installation.
+It provides a complete set of collections and models that automatically connects to your wordpress installation so you can freely use them with your views structure.
 
 With this plugin you can:
 
@@ -19,7 +19,7 @@ With this plugin you can:
 
 #### Plugin installation
 
-You must have the json-api plugin installed in your wordpress.
+You must have the json-api plugin installed in your wordpress. This plugin is provided with the repository.
 
 To install it, just copy the folder `json-api` to your `plugins` folder. Usually in `wp-content` folder in your wordpress file structure.
 
@@ -81,10 +81,10 @@ phallanx.cache.expireTime = 2 // Time for the cache to expire (in hours)
 Default expire time is 24 hours
 
 
-You can force the request when make a query passing the variable `forceRequest` in every query and skip the cache, for example to get new comments.
+You can force the request passing the variable `forceRequest` in every api call in order to skip the cache.
 
 ```javascript
-phallanx.recentPosts({ forceRequest: true })
+phallanx.post(10, { forceRequest: true })
 ```
 
 You can force a cleaning to remove all expired items with the method
@@ -104,7 +104,7 @@ phallanx.cache.cleanStorage(true)
 If the quota is exceeded, it will automatically clean all expired calls and it will trigger a `quota exceeded` event.
 
 ```javascript
-api.cache.on('quota exceeded', function(){
+phallanx.cache.on('quota exceeded', function(){
 	alert("Quota has been exceeded");
 });
 ```
@@ -362,9 +362,7 @@ You can fork the repository, make your contribution to the code and asking for a
 All source files are in the folder `src`. Coffeescript is used and a classical class structure is followed.
 You can run this command in your terminal from the respository root folder:
 	
-```bash
-$ cake watch
-```
+	$ cake watch
 
 And your coffee files will be automatically compiled to `deploy` folder everytime they change.
 
@@ -374,9 +372,7 @@ If you add some files to the library, you should add it to the `output` array in
 #### Build
 To build the library you have to run the next command in your terminal from the repository root folder:
 
-```bash
-$ cake build
-```
+	$ cake build
 	
 This will create to files in the `deploy` folder: `phallanxpress.js`, the all-in-one-file development library; and `phallaxpress.min.js`, the minified and compressed version of the library.
 
@@ -387,9 +383,7 @@ To run the tests, just drag and drop the file `index.html` in the `tests` folder
 
 The tests and specs are in the `specs` folder. Specs are written in Coffeescript. Run in your terminal:
 
-```bash
-$ cake test
-```
+	$ cake test
 
 To automatically compile coffeescript files.
 
