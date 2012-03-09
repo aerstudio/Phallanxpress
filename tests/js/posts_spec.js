@@ -165,7 +165,7 @@
         });
         return expect(render).toHaveBeenCalled();
       });
-      return it('calls the success callback when finished', function() {
+      it('calls the success callback when finished', function() {
         var success;
         success = jasmine.createSpy('success');
         api.recentPosts({
@@ -175,6 +175,51 @@
         request = mostRecentAjaxRequest();
         request.response(TestResponses.posts.success);
         return expect(success).toHaveBeenCalled();
+      });
+      it('triggers a reset event', function() {
+        var View, add, reset, v;
+        reset = jasmine.createSpy('reset');
+        add = jasmine.createSpy('add');
+        View = Backbone.View.extend({
+          initialize: function() {
+            this.collection.on('add', add, this);
+            return this.collection.on('reset', reset, this);
+          }
+        });
+        v = api.recentPosts({
+          view: View,
+          forceRequest: true,
+          params: {
+            custom_fields: "g1,f2"
+          }
+        });
+        request = mostRecentAjaxRequest();
+        request.response(TestResponses.posts.success);
+        expect(add).not.toHaveBeenCalled();
+        return expect(reset).toHaveBeenCalled();
+      });
+      return it('triggers a add event', function() {
+        var View, add, reset, v;
+        reset = jasmine.createSpy('reset');
+        add = jasmine.createSpy('add');
+        View = Backbone.View.extend({
+          initialize: function() {
+            this.collection.on('add', add, this);
+            return this.collection.on('reset', reset, this);
+          }
+        });
+        v = api.recentPosts({
+          view: View,
+          forceRequest: true,
+          add: true,
+          params: {
+            custom_fields: "g1,f2"
+          }
+        });
+        request = mostRecentAjaxRequest();
+        request.response(TestResponses.posts.success);
+        expect(add).toHaveBeenCalled();
+        return expect(reset).not.toHaveBeenCalled();
       });
     });
     return describe('Fetching methods', function() {

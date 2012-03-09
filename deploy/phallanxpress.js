@@ -1,19 +1,21 @@
 (function() {
-  var $, Backbone, Phallanxpress, previousPhallanxpress, root, _;
-  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
+  var $, Backbone, Phallanxpress, inBrowser, previousPhallanxpress, root, _;
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; }, __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
     for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
     function ctor() { this.constructor = child; }
     ctor.prototype = parent.prototype;
     child.prototype = new ctor;
     child.__super__ = parent.prototype;
     return child;
-  }, __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  };
   root = this;
   previousPhallanxpress = root.Phallanxpress;
   if (typeof exports !== 'undefined') {
     Phallanxpress = exports.Phallanxpress = {};
+    inBrowser = false;
   } else {
     Phallanxpress = root.Phallanxpress = {};
+    inBrowser = true;
   }
   Phallanxpress.VERSION = '0.1.0';
   _ = root._;
@@ -29,6 +31,136 @@
     root.Phallanxpress = previousPhallanxpress;
     return this;
   };
+  Phallanxpress.Storage = (function() {
+    Storage.prototype.expireTime = 24;
+    function Storage(name, session) {
+      this.name = name;
+      if (session == null) {
+        session = false;
+      }
+      this.enable(session)();
+    }
+    Storage.prototype.enable = function(session) {
+      if (session == null) {
+        session = false;
+      }
+      if (!(typeof window !== "undefined" && window !== null) && !window.localStorage && !window.sessionStorage) {
+        return;
+      }
+      if (session) {
+        return this.storage = window.sessionStorage;
+      } else {
+        return this.storage = window.localStorage;
+      }
+    };
+    Storage.prototype.disable = function() {
+      return this.storage = null;
+    };
+    Storage.prototype.saveCollection = function(collection) {
+      var col;
+      if (collection.length === 0 || !(this.storage != null)) {
+        return;
+      }
+      col = {
+        ids: collection.pluck('id'),
+        timestamp: new Date().getTime()
+      };
+      try {
+        this.storage.setItem(collection.url, JSON.stringify(col));
+      } catch (error) {
+        if (error === QUOTA_EXCEEDED_ERR) {
+          return;
+        } else {
+          throw error;
+        }
+      }
+      return collection.each(__bind(function(model) {
+        return this.saveModel(model);
+      }, this));
+    };
+    Storage.prototype.saveModel = function(model) {
+      var now;
+      if (this.storage == null) {
+        return;
+      }
+      now = new Date();
+      model.set({
+        phallanxTimestamp: now.getTime(),
+        silent: true
+      });
+      try {
+        return this.storage.setItem(this.name + model.constructor.name.toLowerCase() + '/' + model.id, JSON.stringify(model));
+      } catch (error) {
+        if (error === QUOTA_EXCEEDED_ERR) {} else {
+          throw error;
+        }
+      }
+    };
+    Storage.prototype.getCollection = function(collection) {
+      var col, elapsedTime, modelName, models;
+      if (this.storage == null) {
+        return false;
+      }
+      col = JSON.parse(this.storage.getItem(collection.url));
+      if (col != null) {
+        elapsedTime = new Date().getTime() - col.timestamp;
+        if (elapsedTime < this.expireTime * 3600000) {
+          modelName = (new collection.model()).constructor.name;
+          models = _.map(col.ids, __bind(function(id) {
+            var attributes;
+            return attributes = this.getModelAttributes(id, modelName);
+          }, this));
+          if (collection.options.add) {
+            collection.add(models, {
+              silent: true
+            });
+          } else {
+            collection.reset(models, {
+              silent: true
+            });
+          }
+          return true;
+        } else {
+          this.destroyCollection(collection);
+          return false;
+        }
+      } else {
+        return false;
+      }
+    };
+    Storage.prototype.getModel = function(model) {
+      var attr, elapsedTime, timestamp;
+      attr = this.getModelAttributes(model.id, model.constructor.name);
+      if (!((attr != null) || (this.storage != null))) {
+        return false;
+      }
+      if (attr.phallanxTimestamp != null) {
+        timestamp = +attr.phallanxTimestamp || 0;
+        delete attr.phallanxTimestamp;
+        elapsedTime = new Date().getTime() - timestamp;
+        if (elapsedTime < this.expireTime * 3600000) {
+          model.set(attr, {
+            silent: true
+          });
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    };
+    Storage.prototype.getModelAttributes = function(id, modelName) {
+      return JSON.parse(this.storage.getItem(this.name + modelName.toLowerCase() + '/' + id));
+    };
+    Storage.prototype.destroyCollection = function(collection) {
+      if (this.storage == null) {
+        return;
+      }
+      return this.storage.removeItem(collection.url);
+    };
+    return Storage;
+  })();
   Phallanxpress.Api = (function() {
     function Api(url) {
       var a, dnsprefetch, linkTags;
@@ -39,19 +171,22 @@
       if (this.url.slice(-1) !== '/') {
         this.url += '/';
       }
-      a = document.createElement('a');
-      a.href = this.url;
-      dnsprefetch = "<link rel=\"dns-prefetch\" href=\"" + a.protocol + "//" + a.hostname + "\">";
-      linkTags = $("link[href*=\"" + a.protocol + "//" + a.hostname + "\"][rel=dns-prefetch]");
-      if (linkTags.length === 0) {
-        $('head').append(dnsprefetch);
+      if (typeof window !== "undefined" && window !== null) {
+        a = document.createElement('a');
+        a.href = this.url;
+        dnsprefetch = "<link rel=\"dns-prefetch\" href=\"" + a.protocol + "//" + a.hostname + "\">";
+        linkTags = $("link[href*=\"" + a.protocol + "//" + a.hostname + "\"][rel=dns-prefetch]");
+        if (linkTags.length === 0) {
+          $('head').append(dnsprefetch);
+        }
       }
+      this.cache = new Phallanxpress.Storage(this.url);
     }
     Api.prototype.recentPosts = function(options) {
       var posts, view;
       options || (options = {});
       posts = new Phallanxpress.Posts;
-      posts.apiUrl = this.url;
+      posts.api = this;
       view = this._bindView(posts, options.view);
       posts.recentPosts(options);
       if (view != null) {
@@ -64,7 +199,7 @@
       var posts, view;
       options || (options = {});
       posts = new Phallanxpress.Posts;
-      posts.apiUrl = this.url;
+      posts.api = this;
       view = this._bindView(posts, options.view);
       posts.searchPosts(query, options);
       if (view != null) {
@@ -77,7 +212,7 @@
       var posts, view;
       options || (options = {});
       posts = new Phallanxpress.Posts;
-      posts.apiUrl = this.url;
+      posts.api = this;
       view = this._bindView(posts, options.view);
       posts.datePosts(query, options);
       if (view != null) {
@@ -90,7 +225,7 @@
       var post, view;
       options || (options = {});
       post = new Phallanxpress.Post;
-      post.apiUrl = this.url;
+      post.api = this;
       if (_.isNumber(id)) {
         post.id = id;
       } else if (_.isString(id)) {
@@ -115,7 +250,7 @@
       var pages, view;
       options || (options = {});
       pages = new Phallanxpress.Pages;
-      pages.apiUrl = this.url;
+      pages.api = this;
       view = this._bindView(pages, options.view);
       pages.pageList(options);
       if (view != null) {
@@ -128,7 +263,7 @@
       var page, view;
       options || (options = {});
       page = new Phallanxpress.Page;
-      page.apiUrl = this.url;
+      page.api = this;
       if (_.isNumber(id)) {
         page.id = id;
       } else if (_.isString(id)) {
@@ -150,7 +285,7 @@
       var categories, view;
       options || (options = {});
       categories = new Phallanxpress.Categories;
-      categories.apiUrl = this.url;
+      categories.api = this;
       view = this._bindView(categories, options.view);
       categories.categoryList(options);
       if (view != null) {
@@ -163,7 +298,7 @@
       var posts, view;
       options || (options = {});
       posts = new Phallanxpress.Posts;
-      posts.apiUrl = this.url;
+      posts.api = this;
       view = this._bindView(posts, options.view);
       posts.categoryPosts(id, options);
       if (view != null) {
@@ -176,7 +311,7 @@
       var tags, view;
       options || (options = {});
       tags = new Phallanxpress.Tags;
-      tags.apiUrl = this.url;
+      tags.api = this;
       view = this._bindView(tags, options.view);
       tags.tagList(options);
       if (view != null) {
@@ -189,7 +324,7 @@
       var posts, view;
       options || (options = {});
       posts = new Phallanxpress.Posts;
-      posts.apiUrl = this.url;
+      posts.api = this;
       view = this._bindView(posts, options.view);
       posts.tagPosts(id, options);
       if (view != null) {
@@ -202,7 +337,7 @@
       var authors, view;
       options || (options = {});
       authors = new Phallanxpress.Authors;
-      authors.apiUrl = this.url;
+      authors.api = this;
       view = this._bindView(authors, options.view);
       authors.authorList(options);
       if (view != null) {
@@ -215,7 +350,7 @@
       var posts, view;
       options || (options = {});
       posts = new Phallanxpress.Posts;
-      posts.apiUrl = this.url;
+      posts.api = this;
       view = this._bindView(posts, options.view);
       posts.authorPosts(id, options);
       if (view != null) {
@@ -267,17 +402,18 @@
       Model.__super__.constructor.apply(this, arguments);
     }
     Model.prototype.url = function() {
-      var url;
-      if (this.apiUrl == null) {
-        throw new Error('An api URL must be defined');
-      }
+      var rootUrl, url;
       if (this.apiCommand == null) {
         throw new Error('An api command must be defined');
       }
-      if (this.has('slug')) {
-        url = "" + this.apiUrl + this.apiCommand + "/?slug=" + (this.get('slug'));
-      } else if (this.id != null) {
-        url = "" + this.apiUrl + this.apiCommand + "/?id=" + this.id;
+      if (!((this.apiUrl != null) || (this.api != null))) {
+        throw new Error('An api or apiUrl must be defined');
+      }
+      rootUrl = this.apiUrl || this.api.url;
+      if (this.id != null) {
+        url = "" + rootUrl + this.apiCommand + "/?id=" + this.id;
+      } else if (this.has('slug')) {
+        url = "" + rootUrl + this.apiCommand + "/?slug=" + (this.get('slug'));
       }
       if (this.postType != null) {
         url += '&post_type=#{@post_type}';
@@ -286,6 +422,25 @@
         url += '&taxonomy=@{@taxonomy}';
       }
       return url;
+    };
+    Model.prototype.fetch = function(options) {
+      var fetched, forced;
+      options = options || {};
+      forced = options.forceRequest || false;
+      if ((this.api != null) && !forced) {
+        fetched = this.api.cache.getModel(this);
+      }
+      if (!fetched) {
+        Model.__super__.fetch.apply(this, arguments);
+      } else {
+        if (!options.silent) {
+          this.trigger('change', this, options);
+        }
+        if (options.success != null) {
+          options.success(this, null);
+        }
+      }
+      return this;
     };
     Model.prototype.parse = function(resp, xhr) {
       if (resp.status === 'ok') {
@@ -365,16 +520,16 @@
       }
     };
     Collection.prototype._wpAPI = function(cmd, options) {
-      var post_type, success, taxonomy, url;
+      var fetched, forced, post_type, success, taxonomy, url;
       if (cmd == null) {
         throw new Error('An api command must be defined');
       }
-      if (this.apiUrl == null) {
-        throw new Error('An api URL must be defind');
+      if (!((this.apiUrl != null) || (this.api != null))) {
+        throw new Error('An api or apiUrl must be defind');
       }
       this.isLoading = true;
       options = options && _.clone(options) || {};
-      url = this.apiUrl;
+      url = this.apiUrl || this.api.url;
       url += cmd + '/';
       options.params = options.params || {};
       this.currentCommand = cmd;
@@ -397,16 +552,37 @@
       success = options.success;
       options.success = __bind(function(resp, status, xhr) {
         this.isLoading = false;
+        if (this.api != null) {
+          this.api.cache.saveCollection(this);
+        }
         if (success != null) {
           return success(this, resp);
         }
       }, this);
       this.options = _.clone(options);
       delete this.options.success;
-      if (!options.add) {
-        this.reset();
+      fetched = false;
+      forced = options.forceRequest || false;
+      if ((this.api != null) && !forced) {
+        fetched = this.api.cache.getCollection(this);
       }
-      this.fetch(options);
+      if (!fetched) {
+        if (!options.add) {
+          this.reset();
+        }
+        this.fetch(options);
+      } else {
+        if (!options.silent) {
+          if (options.add) {
+            this.trigger('add', this, options);
+          } else {
+            this.trigger('reset', this, options);
+          }
+        }
+        if (success != null) {
+          success(this, null);
+        }
+      }
       return this;
     };
     Collection.prototype.resetVars = function() {

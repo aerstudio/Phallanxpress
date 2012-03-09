@@ -26,7 +26,7 @@ describe "Phallanxpress posts collection", ->
       expect(mostRecentAjaxRequest().url).toEqual("#{api.url}get_category_posts/?slug=cat1&count=32&page=1")
 
     it " builds url with id if a model is passed", ->
-      cat = new Phallanxpress.Category( id: 7)
+      cat = new Phallanxpress.Category( id: 7 )
       posts = api.categoryPosts(cat, forceRequest: true)
       expect(mostRecentAjaxRequest().url).toEqual("#{api.url}get_category_posts/?id=7&count=32&page=1")
 
@@ -123,6 +123,36 @@ describe "Phallanxpress posts collection", ->
       request = mostRecentAjaxRequest()
       request.response TestResponses.posts.success
       expect(success).toHaveBeenCalled()
+
+    it 'triggers a reset event', ->
+      reset = jasmine.createSpy('reset')
+      add = jasmine.createSpy('add')
+      View = Backbone.View.extend(
+        initialize: ->
+          @collection.on('add', add, this)
+          @collection.on('reset', reset, this)
+      )
+      v = api.recentPosts( view: View ,  forceRequest: true, params: { custom_fields: "g1,f2"})
+      request = mostRecentAjaxRequest()
+      request.response TestResponses.posts.success
+
+      expect(add).not.toHaveBeenCalled()      
+      expect(reset).toHaveBeenCalled()
+
+    it 'triggers a add event', ->
+      reset = jasmine.createSpy('reset')
+      add = jasmine.createSpy('add')
+      View = Backbone.View.extend(
+        initialize: ->
+          @collection.on('add', add, this)
+          @collection.on('reset', reset, this)
+      )
+      v = api.recentPosts( view: View , forceRequest: true, add: true, params: { custom_fields: "g1,f2"})
+      request = mostRecentAjaxRequest()
+      request.response TestResponses.posts.success
+
+      expect(add).toHaveBeenCalled()      
+      expect(reset).not.toHaveBeenCalled()
 
   describe 'Fetching methods', ->
 

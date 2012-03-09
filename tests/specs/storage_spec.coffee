@@ -48,7 +48,7 @@ describe 'Phallanxpress storage', ->
       expect(ajaxRequests.length).toEqual numRequests + 1
       expect(request.url).toEqual posts.url
 
-    it "gets data from storage", ->
+    it "gets data from cache", ->
       posts = api.recentPosts(params: { custom_fields: "d1,d2"}, forceRequest: true)
       request = mostRecentAjaxRequest()
       request.response TestResponses.posts.success
@@ -67,20 +67,30 @@ describe 'Phallanxpress storage', ->
 
     it "triggers reset event", ->
       
-      render = jasmine.createSpy('render')
-      view = new Backbone.View
-      view.render = render
-      v = api.recentPosts( view: view , params: { custom_fields: "f1,f2"})
+      reset = jasmine.createSpy('reset')
+      add = jasmine.createSpy('add')
+      View = Backbone.View.extend(
+        initialize: ->
+          @collection.on('reset', reset, this)
+          @collection.on('add', add, this)
+      )
+      v = api.recentPosts( view: View , params: { custom_fields: "f1,f2"})
       
-      expect(render).toHaveBeenCalled()
+      expect(reset).toHaveBeenCalled()
+      expect(add).not.toHaveBeenCalled()
 
     it "triggers add event", ->
-      render = jasmine.createSpy('render')
-      view = new Backbone.View
-      view.render = render
-      v = api.recentPosts( view: view , add: true, params: { custom_fields: "f1,f2"})
+      reset = jasmine.createSpy('reset')
+      add = jasmine.createSpy('add')
+      View = Backbone.View.extend(
+        initialize: ->
+          @collection.on('add', add, this)
+          @collection.on('reset', reset, this)
+      )
+      v = api.recentPosts( view: View , add: true, params: { custom_fields: "f1,f2"})
       
-      expect(render).toHaveBeenCalled()      
+      expect(add).toHaveBeenCalled()      
+      expect(reset).not.toHaveBeenCalled()
 
     it "makes a request if expired", ->
       runs ->

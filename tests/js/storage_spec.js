@@ -64,7 +64,7 @@
         expect(ajaxRequests.length).toEqual(numRequests + 1);
         return expect(request.url).toEqual(posts.url);
       });
-      it("gets data from storage", function() {
+      it("gets data from cache", function() {
         var length, models;
         posts = api.recentPosts({
           params: {
@@ -91,31 +91,43 @@
         return expect(posts.pluck('id')).toEqual(models);
       });
       it("triggers reset event", function() {
-        var render, v, view;
-        render = jasmine.createSpy('render');
-        view = new Backbone.View;
-        view.render = render;
+        var View, add, reset, v;
+        reset = jasmine.createSpy('reset');
+        add = jasmine.createSpy('add');
+        View = Backbone.View.extend({
+          initialize: function() {
+            this.collection.on('reset', reset, this);
+            return this.collection.on('add', add, this);
+          }
+        });
         v = api.recentPosts({
-          view: view,
+          view: View,
           params: {
             custom_fields: "f1,f2"
           }
         });
-        return expect(render).toHaveBeenCalled();
+        expect(reset).toHaveBeenCalled();
+        return expect(add).not.toHaveBeenCalled();
       });
       it("triggers add event", function() {
-        var render, v, view;
-        render = jasmine.createSpy('render');
-        view = new Backbone.View;
-        view.render = render;
+        var View, add, reset, v;
+        reset = jasmine.createSpy('reset');
+        add = jasmine.createSpy('add');
+        View = Backbone.View.extend({
+          initialize: function() {
+            this.collection.on('add', add, this);
+            return this.collection.on('reset', reset, this);
+          }
+        });
         v = api.recentPosts({
-          view: view,
+          view: View,
           add: true,
           params: {
             custom_fields: "f1,f2"
           }
         });
-        return expect(render).toHaveBeenCalled();
+        expect(add).toHaveBeenCalled();
+        return expect(reset).not.toHaveBeenCalled();
       });
       return it("makes a request if expired", function() {
         runs(function() {

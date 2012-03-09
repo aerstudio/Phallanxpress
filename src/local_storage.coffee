@@ -3,11 +3,15 @@ class Phallanxpress.Storage
 
   expireTime: 24 # Expiring time in hours
 
-  constructor: (@name)->
-    do @enable
+  constructor: (@name, session = false)->
+    do @enable session
 
-  enable: ->
-    @storage = window.localStorage if window?
+  enable: (session = false) ->
+    return if not window? and not window.localStorage and not window.sessionStorage
+    if session
+      @storage = window.sessionStorage
+    else
+      @storage = window.localStorage
 
   disable: ->
     @storage = null

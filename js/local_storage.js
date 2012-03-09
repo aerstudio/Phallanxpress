@@ -2,12 +2,23 @@
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
   Phallanxpress.Storage = (function() {
     Storage.prototype.expireTime = 24;
-    function Storage(name) {
+    function Storage(name, session) {
       this.name = name;
-      this.enable();
+      if (session == null) {
+        session = false;
+      }
+      this.enable(session)();
     }
-    Storage.prototype.enable = function() {
-      if (typeof window !== "undefined" && window !== null) {
+    Storage.prototype.enable = function(session) {
+      if (session == null) {
+        session = false;
+      }
+      if (!(typeof window !== "undefined" && window !== null) && !window.localStorage && !window.sessionStorage) {
+        return;
+      }
+      if (session) {
+        return this.storage = window.sessionStorage;
+      } else {
         return this.storage = window.localStorage;
       }
     };
