@@ -92,7 +92,7 @@ class Phallanxpress.Cache
 
   getModel: (model) ->
     attr = @getModelAttributes model.id, model.constructor.name
-    return false unless attr? or @storage?
+    return false if not attr? or not @storage?
     if attr.phallanxTimestamp?
       timestamp = +attr.phallanxTimestamp || 0
       delete attr.phallanxTimestamp
