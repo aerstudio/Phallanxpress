@@ -377,7 +377,7 @@ To build the library you have to run the next command in your terminal from the 
 This will create to files in the `deploy` folder: `phallanxpress.js`, the all-in-one-file development library; and `phallaxpress.min.js`, the minified and compressed version of the library.
 
 #### Tests
-The [Jasmine](http://pivotal.github.com/jasmine/) suite is used for running spec tests for BDD.
+The [Jasmine](https://jasmine.github.io/) suite is used for running spec tests for BDD.
 
 To run the tests, just drag and drop the file `index.html` in the `tests` folder to your browser.
 
